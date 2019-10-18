@@ -2868,7 +2868,7 @@ pub mod tests {
 
         // Test the addresses against https://iancoleman.io/bip39/
         let (taddr, pk) = &wallet.get_t_secret_keys()[0];
-        assert_eq!(taddr, "t1eQ63fwkQ4n4Eo5uCrPGaAV8FWB2tmx7ui");
+        assert_eq!(taddr, "RVog7rQu2Zo2iAQCjbZGXsiQm7SYr9bcaq");
         assert_eq!(pk, "Kz9ybX4giKag4NtnP1pi8WQF2B2hZDkFU85S7Dciz3UUhM59AnhE");
 
         let (zaddr, sk) = &wallet.get_z_private_keys()[0];
@@ -2880,7 +2880,7 @@ pub mod tests {
 
     #[test]
     fn test_invalid_scan_blocks() {
-        const AMOUNT: u64 = 500000;
+        const AMOUNT: u64 = 50000;
         let (wallet, _txid1, block_hash) = get_test_wallet(AMOUNT);       
 
         let prev_hash = add_blocks(&wallet, 2, 1, block_hash).unwrap();

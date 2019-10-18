@@ -22,9 +22,9 @@ use crate::grpcconnector::{self, *};
 use crate::SaplingParams;
 use crate::ANCHOR_OFFSET;
 
-pub const DEFAULT_SERVER: &str = "https://lightd-main.zecwallet.co:443";
-pub const WALLET_NAME: &str    = "zecwallet-light-wallet.dat";
-pub const LOGFILE_NAME: &str   = "zecwallet-light-wallet.debug.log";
+pub const DEFAULT_SERVER: &str = "https://";
+pub const WALLET_NAME: &str    = "silentdragonlite-cli.dat";
+pub const LOGFILE_NAME: &str   = "silentdragonlite-cli.debug.log";
 
 
 #[derive(Clone, Debug)]
@@ -61,10 +61,10 @@ impl LightClientConfig {
         let mut zcash_data_location; 
         if cfg!(target_os="macos") || cfg!(target_os="windows") {
             zcash_data_location = dirs::data_dir().expect("Couldn't determine app data directory!");
-            zcash_data_location.push("Zcash");
+            zcash_data_location.push("HUSH3");
         } else {
             zcash_data_location = dirs::home_dir().expect("Couldn't determine home directory!");
-            zcash_data_location.push(".zcash");
+            zcash_data_location.push(".komodo/HUSH3/SilentDragonLite/");
         };
 
         match &self.chain_name[..] {
@@ -93,13 +93,13 @@ impl LightClientConfig {
 
     pub fn get_initial_state(&self) -> Option<(u64, &str, &str)> {
         match &self.chain_name[..] {
-            "test" => Some((600000,
-                        "0107385846c7451480912c294b6ce1ee1feba6c2619079fd9104f6e71e4d8fe7",
-                        "01690698411e3f8badea7da885e556d7aba365a797e9b20b44ac0946dced14b23c001001ab2a18a5a86aa5d77e43b69071b21770b6fe6b3c26304dcaf7f96c0bb3fed74d000186482712fa0f2e5aa2f2700c4ed49ef360820f323d34e2b447b78df5ec4dfa0401a332e89a21afb073cb1db7d6f07396b56a95e97454b9bca5a63d0ebc575d3a33000000000001c9d3564eff54ebc328eab2e4f1150c3637f4f47516f879a0cfebdf49fe7b1d5201c104705fac60a85596010e41260d07f3a64f38f37a112eaef41cd9d736edc5270145e3d4899fcd7f0f1236ae31eafb3f4b65ad6b11a17eae1729cec09bd3afa01a000000011f8322ef806eb2430dc4a7a41c1b344bea5be946efc7b4349c1c9edb14ff9d39"
+            "test" => Some((105942,
+                        "00000001c0199f329ee03379bf1387856dbab23765da508bf9b9d8d544f212c0",
+                        ""
                       )),
-            "main" => Some((610000,
-                        "000000000218882f481e3b49ca3df819734b8d74aac91f69e848d7499b34b472",
-                        "0192943f1eca6525cea7ea8e26b37c792593ed50cfe2be7a1ff551a08dc64b812f001000000001deef7ae5162a9942b4b9aa797137c5bdf60750e9548664127df99d1981dda66901747ad24d5daf294ce2a27aba923e16e52e7348eea3048c5b5654b99ab0a371200149d8aff830305beb3887529f6deb150ab012916c3ce88a6b47b78228f8bfeb3f01ff84a89890cfae65e0852bc44d9aa82be2c5d204f5aebf681c9e966aa46f540e000001d58f1dfaa9db0996996129f8c474acb813bfed452d347fb17ebac2e775e209120000000001319312241b0031e3a255b0d708750b4cb3f3fe79e3503fe488cc8db1dd00753801754bb593ea42d231a7ddf367640f09bbf59dc00f2c1d2003cc340e0c016b5b13"
+            "main" => Some((105944,
+                        "0000000313b0ec7c5a1e9b997ce44a7763b56c5505526c36634a004ed52d7787",
+                         ""
             )),
             _ => None
         }
@@ -146,21 +146,21 @@ impl LightClientConfig {
         }
     }
 
-    pub fn base58_pubkey_address(&self) -> [u8; 2] {
+    pub fn base58_pubkey_address(&self) -> [u8; 1] {
         match &self.chain_name[..] {
             "main"    => mainnet::B58_PUBKEY_ADDRESS_PREFIX,
-            "test"    => testnet::B58_PUBKEY_ADDRESS_PREFIX,
-            "regtest" => regtest::B58_PUBKEY_ADDRESS_PREFIX,
+            
+            
             c         => panic!("Unknown chain {}", c)
         }
     }
 
 
-    pub fn base58_script_address(&self) -> [u8; 2] {
+    pub fn base58_script_address(&self) -> [u8; 1] {
         match &self.chain_name[..] {
             "main"    => mainnet::B58_SCRIPT_ADDRESS_PREFIX,
-            "test"    => testnet::B58_SCRIPT_ADDRESS_PREFIX,
-            "regtest" => regtest::B58_SCRIPT_ADDRESS_PREFIX,
+            
+            
             c         => panic!("Unknown chain {}", c)
         }
     }
@@ -435,7 +435,7 @@ impl LightClient {
                     "unconfirmed_spent"  => utxo.unconfirmed_spent.map(|spent_txid| format!("{}", spent_txid)),
                 }
             )
-            .collect::<Vec<JsonValue>>();
+            .collect::<Vec<JsonValue>>();;
 
         let mut res = object!{
             "unspent_notes" => unspent_notes,

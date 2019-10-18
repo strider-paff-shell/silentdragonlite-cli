@@ -2,7 +2,7 @@ use std::io::{Result, Error, ErrorKind};
 use std::sync::Arc;
 use std::sync::mpsc::{channel, Sender, Receiver};
 
-use zecwalletlitelib::{commands, 
+use silentdragonlitelib::{commands, 
     lightclient::{self, LightClient, LightClientConfig},
 };
 
@@ -23,7 +23,7 @@ use log4rs::append::rolling_file::policy::compound::{
 fn get_log_config(config: &LightClientConfig) -> Result<Config> {
     let window_size = 3; // log0, log1, log2
     let fixed_window_roller =
-        FixedWindowRoller::builder().build("zecwallet-light-wallet-log{}",window_size).unwrap();
+        FixedWindowRoller::builder().build("SilentDragonLite-light-wallet-log{}",window_size).unwrap();
     let size_limit = 5 * 1024 * 1024; // 5MB as max log file size to roll
     let size_trigger = SizeTrigger::new(size_limit);
     let compound_policy = CompoundPolicy::new(Box::new(size_trigger),Box::new(fixed_window_roller));
@@ -53,7 +53,7 @@ fn get_log_config(config: &LightClientConfig) -> Result<Config> {
 pub fn main() {
     // Get command line arguments
     use clap::{Arg, App};
-    let matches = App::new("Zecwallet CLI")
+    let matches = App::new("SilentDragon CLI")
                     .version("1.0.0")
                     .arg(Arg::with_name("seed")
                         .short("s")
@@ -76,12 +76,12 @@ pub fn main() {
                         .help("Attempt to recover the seed from the wallet")
                         .takes_value(false))
                     .arg(Arg::with_name("nosync")
-                        .help("By default, zecwallet-cli will sync the wallet at startup. Pass --nosync to prevent the automatic sync at startup.")
+                        .help("By default, silentdragonlite-cli will sync the wallet at startup. Pass --nosync to prevent the automatic sync at startup.")
                         .long("nosync")
                         .short("n")
                         .takes_value(false))
                     .arg(Arg::with_name("COMMAND")
-                        .help("Command to execute. If a command is not specified, zecwallet-cli will start in interactive mode.")
+                        .help("Command to execute. If a command is not specified, silentdragonlite-cli will start in interactive mode.")
                         .required(false)
                         .index(1))
                     .arg(Arg::with_name("PARAMS")
@@ -155,7 +155,7 @@ fn startup(server: http::Uri, dangerous: bool, seed: Option<String>, first_sync:
 
     // Print startup Messages
     info!(""); // Blank line
-    info!("Starting Zecwallet-CLI");
+    info!("Starting SilentDragonLite CLI");
     info!("Light Client config {:?}", config);
 
     if print_updates {

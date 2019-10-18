@@ -1,5 +1,5 @@
 [package]
-name = "zecwalletlitelib"
+name = "silentdragonlitelib"
 version = "0.1.0"
 edition = "2018"
 
@@ -36,38 +36,39 @@ rust-embed = { version = "5.1.0", features = ["debug-embed"] }
 rand = "0.7.2"
 
 [dependencies.bellman]
-git = "https://github.com/adityapk00/librustzcash.git"
-rev = "188537ea025fcb7fbdfc11266f307a084a5451e4"
+git = "https://github.com/DenioD/librustzcash.git"
+rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
 default-features = false
 features = ["groth16"]
 
 [dependencies.pairing]
-git = "https://github.com/adityapk00/librustzcash.git"
-rev = "188537ea025fcb7fbdfc11266f307a084a5451e4"
+git = "https://github.com/DenioD/librustzcash.git"
+rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
 
 [dependencies.zcash_client_backend]
-git = "https://github.com/adityapk00/librustzcash.git"
-rev = "188537ea025fcb7fbdfc11266f307a084a5451e4"
+git = "https://github.com/DenioD/librustzcash.git"
+rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
+
 default-features = false
 
 [dependencies.zcash_primitives]
-git = "https://github.com/adityapk00/librustzcash.git"
-rev = "188537ea025fcb7fbdfc11266f307a084a5451e4"
+git = "https://github.com/DenioD/librustzcash.git"
+rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
 default-features = false
 features = ["transparent-inputs"]
 
 [dependencies.zcash_proofs]
-git = "https://github.com/adityapk00/librustzcash.git"
-rev = "188537ea025fcb7fbdfc11266f307a084a5451e4"
+git = "https://github.com/DenioD/librustzcash.git"
+rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
 default-features = false
 
 [dependencies.ff]
-git = "https://github.com/adityapk00/librustzcash.git"
-rev = "188537ea025fcb7fbdfc11266f307a084a5451e4"
+git = "https://github.com/DenioD/librustzcash.git"
+rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
 features = ["ff_derive"]
 
 [build-dependencies]
 tower-grpc-build = { git = "https://github.com/tower-rs/tower-grpc",  features = ["tower-hyper"]  }
 
 [profile.release]
-debug = false
+debug = true

@@ -32,45 +32,45 @@ if [ -z $APP_VERSION ]; then echo "APP_VERSION is not set"; exit 1; fi
 #cargo build --release 
 
 # For Windows and Linux, build via docker
-docker run --rm -v $(pwd)/:/opt/zecwallet-light-cli rustbuild:latest bash -c "cd /opt/zecwallet-light-cli && cargo build --release && cargo build --release --target x86_64-pc-windows-gnu"
+docker run --rm -v $(pwd)/:/opt/silentdragonlite-cli rustbuild:latest bash -c "cd /opt/silentdragonlite-cli && cargo build --release && cargo build --release --target x86_64-pc-windows-gnu"
 
 # Now sign and zip the binaries
 #macOS
-rm -rf target/macOS-zecwallet-cli-v$APP_VERSION
-mkdir -p target/macOS-zecwallet-cli-v$APP_VERSION
-cp target/release/zecwallet-cli target/macOS-zecwallet-cli-v$APP_VERSION/
-gpg --batch --output target/macOS-zecwallet-cli-v$APP_VERSION/zecwallet-cli.sig --detach-sig target/macOS-zecwallet-cli-v$APP_VERSION/zecwallet-cli 
+rm -rf target/macOS-silentdragonlite-cli-v$APP_VERSION
+mkdir -p target/macOS-silentdragonlite-cli-v$APP_VERSION
+cp target/release/silentdragonlite-cli target/macOS-silentdragonlite-cli-v$APP_VERSION/
+gpg --batch --output target/macOS-silentdragonlite-cli-v$APP_VERSION/silentdragonlite-cli.sig --detach-sig target/macOS-silentdragonlite-cli-v$APP_VERSION/silentdragonlite-cli 
 cd target
-cd macOS-zecwallet-cli-v$APP_VERSION
-gsha256sum zecwallet-cli > sha256sum.txt
+cd macOS-silentdragonlite-cli-v$APP_VERSION
+gsha256sum silentdragonlite-cli > sha256sum.txt
 cd ..
-zip -r macOS-zecwallet-cli-v$APP_VERSION.zip macOS-zecwallet-cli-v$APP_VERSION 
+zip -r macOS-silentdragonlite-cli-v$APP_VERSION.zip macOS-silentdragonlite-cli-v$APP_VERSION 
 cd ..
 
 
 #Linux
-rm -rf target/linux-zecwallet-cli-v$APP_VERSION
-mkdir -p target/linux-zecwallet-cli-v$APP_VERSION
-cp target/release/zecwallet-cli target/linux-zecwallet-cli-v$APP_VERSION/
-gpg --batch --output target/linux-zecwallet-cli-v$APP_VERSION/zecwallet-cli.sig --detach-sig target/linux-zecwallet-cli-v$APP_VERSION/zecwallet-cli
+rm -rf target/linux-silentdragonlite-cli-v$APP_VERSION
+mkdir -p target/linux-silentdragonlite-cli-v$APP_VERSION
+cp target/release/silentdragonlite-cli target/linux-silentdragonlite-cli-v$APP_VERSION/
+gpg --batch --output target/linux-silentdragonlite-cli-v$APP_VERSION/silentdragonlite-cli.sig --detach-sig target/linux-silentdragonlite-cli-v$APP_VERSION/silentdragonlite-cli
 cd target
-cd linux-zecwallet-cli-v$APP_VERSION
-gsha256sum zecwallet-cli > sha256sum.txt
+cd linux-silentdragonlite-cli-v$APP_VERSION
+gsha256sum silentdragonlite-cli > sha256sum.txt
 cd ..
-zip -r linux-zecwallet-cli-v$APP_VERSION.zip linux-zecwallet-cli-v$APP_VERSION 
+zip -r linux-silentdragonlite-cli-v$APP_VERSION.zip linux-silentdragonlite-cli-v$APP_VERSION 
 cd ..
 
 
 #Windows
-rm -rf target/Windows-zecwallet-cli-v$APP_VERSION
-mkdir -p target/Windows-zecwallet-cli-v$APP_VERSION
-cp target/x86_64-pc-windows-gnu/release/zecwallet-cli.exe target/Windows-zecwallet-cli-v$APP_VERSION/
-gpg --batch --output target/Windows-zecwallet-cli-v$APP_VERSION/zecwallet-cli.sig --detach-sig target/Windows-zecwallet-cli-v$APP_VERSION/zecwallet-cli.exe
+rm -rf target/Windows-silentdragonlite-cli-v$APP_VERSION
+mkdir -p target/Windows-silentdragonlite-cli-v$APP_VERSION
+cp target/x86_64-pc-windows-gnu/release/silentdragonlite-cli.exe target/Windows-silentdragonlite-cli-v$APP_VERSION/
+gpg --batch --output target/Windows-silentdragonlite-cli-v$APP_VERSION/silentdragonlite-cli.sig --detach-sig target/Windows-silentdragonlite-cli-v$APP_VERSION/silentdragonlite-cli.exe
 cd target
-cd Windows-zecwallet-cli-v$APP_VERSION
-gsha256sum zecwallet-cli.exe > sha256sum.txt
+cd Windows-silentdragonlite-cli-v$APP_VERSION
+gsha256sum silentdragonlite-cli.exe > sha256sum.txt
 cd ..
-zip -r Windows-zecwallet-cli-v$APP_VERSION.zip Windows-zecwallet-cli-v$APP_VERSION 
+zip -r Windows-silentdragonlite-cli-v$APP_VERSION.zip Windows-silentdragonlite-cli-v$APP_VERSION 
 cd ..
 
 
