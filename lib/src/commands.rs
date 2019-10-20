@@ -208,7 +208,7 @@ impl Command for SendCommand {
         let mut h = vec![];
         h.push("Send HUSH to a given address");
         h.push("Usage:");
-        h.push("send <address> <amount in zatoshis> \"optional_memo\"");
+        h.push("send <address> <amount in puposhis> \"optional_memo\"");
         h.push("");
         h.push("Example:");
         h.push("send ztestsapling1x65nq4dgp0qfywgxcwk9n0fvm4fysmapgr2q00p85ju252h6l7mmxu2jg9cqqhtvzd69jwhgv8d 200000 \"Hello from the command line\"");

@@ -37,34 +37,34 @@ rand = "0.7.2"
 
 [dependencies.bellman]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
+rev= "44a1c3981df37b73d87f0e625ca3557d8534e6f3"
 default-features = false
 features = ["groth16"]
 
 [dependencies.pairing]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
+rev= "44a1c3981df37b73d87f0e625ca3557d8534e6f3"
 
 [dependencies.zcash_client_backend]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
+rev= "44a1c3981df37b73d87f0e625ca3557d8534e6f3"
 
 default-features = false
 
 [dependencies.zcash_primitives]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
+rev= "44a1c3981df37b73d87f0e625ca3557d8534e6f3"
 default-features = false
 features = ["transparent-inputs"]
 
 [dependencies.zcash_proofs]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
+rev= "44a1c3981df37b73d87f0e625ca3557d8534e6f3"
 default-features = false
 
 [dependencies.ff]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "af5f25e87347e9ac42f29c37d43250e9de5c21de"
+rev= "44a1c3981df37b73d87f0e625ca3557d8534e6f3"
 features = ["ff_derive"]
 
 [build-dependencies]
