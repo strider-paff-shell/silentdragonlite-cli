@@ -2,7 +2,7 @@ use std::io::{Result, Error, ErrorKind};
 use std::sync::Arc;
 use std::sync::mpsc::{channel, Sender, Receiver};
 
-use silentdragonlitelib::{commands, 
+use silentdragonlitelib::{commands, startup_helpers,
     lightclient::{self, LightClient, LightClientConfig},
 };
 
@@ -111,12 +111,17 @@ pub fn main() {
 
     let dangerous = matches.is_present("dangerous");
     let nosync = matches.is_present("nosync");
-
     let (command_tx, resp_rx) = match startup(server, dangerous, seed, !nosync, command.is_none()) {
         Ok(c) => c,
         Err(e) => {
             eprintln!("Error during startup: {}", e);
             error!("Error during startup: {}", e);
+            match e.raw_os_error() {
+                Some(13) => {
+                    startup_helpers::report_permission_error();
+                },
+                _ => eprintln!("Something else!")
+            }
             return;
         }
     };
@@ -137,6 +142,10 @@ pub fn main() {
                 error!("{}", e);
             }
         }
+
+        // Save before exit
+        command_tx.send(("save".to_string(), vec![])).unwrap();
+        resp_rx.recv().unwrap();
     }
 }
 
@@ -151,7 +160,10 @@ fn startup(server: http::Uri, dangerous: bool, seed: Option<String>, first_sync:
         std::io::Error::new(ErrorKind::Other, e)
     })?;
 
-    let lightclient = Arc::new(LightClient::new(seed, &config, latest_block_height)?);
+      let lightclient = match seed {
+        Some(phrase) => Arc::new(LightClient::new_from_phrase(phrase, &config, latest_block_height)?),
+        None => Arc::new(LightClient::read_from_disk(&config)?)
+    };
 
     // Print startup Messages
     info!(""); // Blank line

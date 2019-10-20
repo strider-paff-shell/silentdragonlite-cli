@@ -201,6 +201,124 @@ impl Command for ExportCommand {
     }
 }
 
+struct EncryptCommand {}
+impl Command for EncryptCommand {
+    fn help(&self) -> String {
+        let mut h = vec![];
+        h.push("Encrypt the wallet with a password");
+        h.push("Note 1: This will encrypt the seed and the sapling and transparent private keys.");
+        h.push("        Use 'unlock' to temporarily unlock the wallet for spending or 'decrypt' ");
+        h.push("        to permanatly remove the encryption");
+        h.push("Note 2: If you forget the password, the only way to recover the wallet is to restore");
+        h.push("        from the seed phrase.");
+        h.push("Usage:");
+        h.push("encrypt password");
+        h.push("");
+        h.push("Example:");
+        h.push("encrypt my_strong_password");
+
+        h.join("\n")
+    }
+
+    fn short_help(&self) -> String {
+        "Encrypt the wallet with a password".to_string()
+    }
+
+    fn exec(&self, args: &[&str], lightclient: &LightClient) -> String {
+        if args.len() != 1 {
+            return self.help();
+        }
+
+        let passwd = args[0].to_string();
+
+        match lightclient.wallet.write().unwrap().encrypt(passwd) {
+            Ok(_)  => object!{ "result" => "success" },
+            Err(e) => object!{
+                "result" => "error",
+                "error"  => e.to_string()
+            }
+        }.pretty(2)
+    }
+}
+
+struct DecryptCommand {}
+impl Command for DecryptCommand {
+    fn help(&self) -> String {
+        let mut h = vec![];
+        h.push("Completely remove wallet encryption, storing the wallet in plaintext on disk");
+        h.push("Note 1: This will decrypt the seed and the sapling and transparent private keys and store them on disk.");
+        h.push("        Use 'unlock' to temporarily unlock the wallet for spending");
+        h.push("Note 2: If you've forgotten the password, the only way to recover the wallet is to restore");
+        h.push("        from the seed phrase.");
+        h.push("Usage:");
+        h.push("decrypt password");
+        h.push("");
+        h.push("Example:");
+        h.push("decrypt my_strong_password");
+
+        h.join("\n")
+    }
+
+    fn short_help(&self) -> String {
+        "Completely remove wallet encryption".to_string()
+    }
+
+    fn exec(&self, args: &[&str], lightclient: &LightClient) -> String {
+        if args.len() != 1 {
+            return self.help();
+        }
+
+        let passwd = args[0].to_string();
+
+        match lightclient.wallet.write().unwrap().remove_encryption(passwd) {
+            Ok(_)  => object!{ "result" => "success" },
+            Err(e) => object!{
+                "result" => "error",
+                "error"  => e.to_string()
+            }
+        }.pretty(2)
+    }
+}
+
+
+struct UnlockCommand {}
+impl Command for UnlockCommand {
+    fn help(&self) -> String {
+        let mut h = vec![];
+        h.push("Unlock the wallet's encryption in memory, allowing spending from this wallet.");
+        h.push("Note 1: This will decrypt spending keys in memory only. The wallet remains encrypted on disk");
+        h.push("        Use 'decrypt' to remove the encryption permanatly.");
+        h.push("Note 2: If you've forgotten the password, the only way to recover the wallet is to restore");
+        h.push("        from the seed phrase.");
+        h.push("Usage:");
+        h.push("unlock password");
+        h.push("");
+        h.push("Example:");
+        h.push("unlock my_strong_password");
+
+        h.join("\n")
+    }
+
+    fn short_help(&self) -> String {
+        "Unlock wallet encryption for spending".to_string()
+    }
+
+    fn exec(&self, args: &[&str], lightclient: &LightClient) -> String {
+        if args.len() != 1 {
+            return self.help();
+        }
+
+        let passwd = args[0].to_string();
+
+        match lightclient.wallet.write().unwrap().unlock(passwd) {
+            Ok(_)  => object!{ "result" => "success" },
+            Err(e) => object!{
+                "result" => "error",
+                "error"  => e.to_string()
+            }
+        }.pretty(2)
+    }
+}
 
 struct SendCommand {}
 impl Command for SendCommand {
@@ -209,6 +327,8 @@ impl Command for SendCommand {
         h.push("Send HUSH to a given address");
         h.push("Usage:");
         h.push("send <address> <amount in puposhis> \"optional_memo\"");
+        h.push("OR");
+        h.push("send '[{'address': <address>, 'amount': <amount in zatoshis>, 'memo': <optional memo>}, ...]'");
         h.push("");
         h.push("Example:");
         h.push("send ztestsapling1x65nq4dgp0qfywgxcwk9n0fvm4fysmapgr2q00p85ju252h6l7mmxu2jg9cqqhtvzd69jwhgv8d 200000 \"Hello from the command line\"");
@@ -222,25 +342,70 @@ impl Command for SendCommand {
     }
 
     fn exec(&self, args: &[&str], lightclient: &LightClient) -> String {
-        // Parse the args. 
+        // Parse the args. There are two argument types.
+        // 1 - A set of 2(+1 optional) arguments for a single address send representing address, value, memo?
+        // 2 - A single argument in the form of a JSON string that is "[{address: address, value: value, memo: memo},...]"
+
         // 1 - Destination address. T or Z address
-        if args.len() < 2 || args.len() > 3 {
+         if args.len() < 1 || args.len() > 3 {
             return self.help();
         }
 
-        // Make sure we can parse the amount
-        let value = match args[1].parse::<u64>() {
-            Ok(amt) => amt,
-            Err(e)  => {
-                return format!("Couldn't parse amount: {}", e);;
+     // Check for a single argument that can be parsed as JSON
+        if args.len() == 1 {
+            // Sometimes on the command line, people use "'" for the quotes, which json::parse doesn't
+            // understand. So replace it with double-quotes
+            let arg_list = args[0].replace("'", "\"");
+
+            let json_args = match json::parse(&arg_list) {
+                Ok(j)  => j,
+                Err(e) => {
+                    let es = format!("Couldn't understand JSON: {}", e);
+                    return format!("{}\n{}", es, self.help());
+                }
+            };
+
+         if !json_args.is_array() {
+                return format!("Couldn't parse argument as array\n{}", self.help());
             }
-        };
 
-        let memo = if args.len() == 3 { Some(args[2].to_string()) } else {None};
-        
-        lightclient.do_sync(true);
+                    let maybe_send_args = json_args.members().map( |j| {
+                if !j.has_key("address") || !j.has_key("amount") {
+                    Err(format!("Need 'address' and 'amount'\n"))
+                } else {
+                    Ok((j["address"].as_str().unwrap(), j["amount"].as_u64().unwrap(), j["memo"].as_str().map(|s| s.to_string())))
+                }
+            }).collect::<Result<Vec<(&str, u64, Option<String>)>, String>>();
 
-        lightclient.do_send(args[0], value, memo)
+            let send_args = match maybe_send_args {
+                Ok(a) => a,
+                Err(s) => { return format!("Error: {}\n{}", s, self.help()); }
+            };
+
+            lightclient.do_sync(true);
+            match lightclient.do_send(send_args) {
+                Ok(txid) => { object!{ "txid" => txid } },
+                Err(e)   => { object!{ "error" => e } }
+            }.pretty(2)
+        } else if args.len() == 2 || args.len() == 3 {
+            // Make sure we can parse the amount
+            let value = match args[1].parse::<u64>() {
+                Ok(amt) => amt,
+                Err(e)  => {
+                    return format!("Couldn't parse amount: {}", e);
+                }
+            };
+
+            let memo = if args.len() == 3 { Some(args[2].to_string()) } else {None};
+
+            lightclient.do_sync(true);
+            match lightclient.do_send(vec!((args[0], value, memo))) {
+                Ok(txid) => { object!{ "txid" => txid } },
+                Err(e)   => { object!{ "error" => e } }
+            }.pretty(2)
+        } else {
+            self.help()
+        }
     }
 }
 
@@ -263,7 +428,19 @@ impl Command for SaveCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-        lightclient.do_save()
+                match lightclient.do_save() {
+            Ok(_) => {
+                let r = object!{ "result" => "success" };
+                r.pretty(2)
+            },
+            Err(e) => {
+                let r = object!{ 
+                    "result" => "error",
+                    "error" => e 
+                };
+                r.pretty(2)
+            }
+        }
     }
 }
 
@@ -403,6 +580,28 @@ impl Command for NotesCommand {
     }
 }
 
+struct FixBip39BugCommand {}
+impl Command for FixBip39BugCommand {
+    fn help(&self)  -> String {
+        let mut h = vec![];
+        h.push("Detect if the wallet has the Bip39 derivation bug, and fix it automatically");
+        h.push("Usage:");
+        h.push("fixbip39bug");
+        h.push("");
+
+        h.join("\n")
+    }
+
+    fn short_help(&self) -> String {
+        "Detect if the wallet has the Bip39 derivation bug, and fix it automatically".to_string()
+    }
+
+    fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
+        use crate::lightwallet::bugs::BugBip39Derivation;
+
+        BugBip39Derivation::fix_bug(lightclient)
+    }
+}
 
 struct QuitCommand {}
 impl Command for QuitCommand {
@@ -421,28 +620,35 @@ impl Command for QuitCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-        lightclient.do_save()
+                match lightclient.do_save() {
+            Ok(_) => {"".to_string()},
+            Err(e) => e
+        }
     }
 }
 
 pub fn get_commands() -> Box<HashMap<String, Box<dyn Command>>> {
     let mut map: HashMap<String, Box<dyn Command>> = HashMap::new();
 
-    map.insert("sync".to_string(),      Box::new(SyncCommand{}));
-    map.insert("rescan".to_string(),    Box::new(RescanCommand{}));
-    map.insert("help".to_string(),      Box::new(HelpCommand{}));
-    map.insert("balance".to_string(),   Box::new(BalanceCommand{}));
-    map.insert("addresses".to_string(), Box::new(AddressCommand{}));
-    map.insert("height".to_string(),    Box::new(HeightCommand{}));
-    map.insert("export".to_string(),    Box::new(ExportCommand{}));
-    map.insert("info".to_string(),      Box::new(InfoCommand{}));
-    map.insert("send".to_string(),      Box::new(SendCommand{}));
-    map.insert("save".to_string(),      Box::new(SaveCommand{}));
-    map.insert("quit".to_string(),      Box::new(QuitCommand{}));
-    map.insert("list".to_string(),      Box::new(TransactionsCommand{}));
-    map.insert("notes".to_string(),     Box::new(NotesCommand{}));
-    map.insert("new".to_string(),       Box::new(NewAddressCommand{}));
-    map.insert("seed".to_string(),      Box::new(SeedCommand{}));
+    map.insert("sync".to_string(),          Box::new(SyncCommand{}));
+    map.insert("rescan".to_string(),        Box::new(RescanCommand{}));
+    map.insert("help".to_string(),          Box::new(HelpCommand{}));
+    map.insert("balance".to_string(),       Box::new(BalanceCommand{}));
+    map.insert("addresses".to_string(),     Box::new(AddressCommand{}));
+    map.insert("height".to_string(),        Box::new(HeightCommand{}));
+    map.insert("export".to_string(),        Box::new(ExportCommand{}));
+    map.insert("info".to_string(),          Box::new(InfoCommand{}));
+    map.insert("send".to_string(),          Box::new(SendCommand{}));
+    map.insert("save".to_string(),          Box::new(SaveCommand{}));
+    map.insert("quit".to_string(),          Box::new(QuitCommand{}));
+    map.insert("list".to_string(),          Box::new(TransactionsCommand{}));
+    map.insert("notes".to_string(),         Box::new(NotesCommand{}));
+    map.insert("new".to_string(),           Box::new(NewAddressCommand{}));
+    map.insert("seed".to_string(),          Box::new(SeedCommand{}));
+    map.insert("encrypt".to_string(),       Box::new(EncryptCommand{}));
+    map.insert("decrypt".to_string(),       Box::new(DecryptCommand{}));
+    map.insert("unlock".to_string(),        Box::new(UnlockCommand{}));
+    map.insert("fixbip39bug".to_string(),   Box::new(FixBip39BugCommand{}));
 
     Box::new(map)
 }

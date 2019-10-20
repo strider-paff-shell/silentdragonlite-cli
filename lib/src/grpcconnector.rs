@@ -1,4 +1,3 @@
-
 use log::{error};
 
 use std::sync::{Arc};
@@ -280,7 +279,12 @@ pub fn broadcast_raw_tx(uri: &http::Uri, no_cert: bool, tx_bytes: Box<[u8]>) -> 
                 .and_then(move |response| {
                     let sendresponse = response.into_inner();
                     if sendresponse.error_code == 0 {
-                        Ok(format!("Successfully broadcast Tx: {}", sendresponse.error_message))
+                        let mut txid = sendresponse.error_message;
+                        if txid.starts_with("\"") && txid.ends_with("\"") {
+                            txid = txid[1..txid.len()-1].to_string();
+                        }
+
+                        Ok(txid)  
                     } else {
                         Err(format!("Error: {:?}", sendresponse))
                     }
