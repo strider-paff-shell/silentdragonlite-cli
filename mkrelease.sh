@@ -25,20 +25,28 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 if [ -z $APP_VERSION ]; then echo "APP_VERSION is not set"; exit 1; fi
 
-# Clean everything first
-#cargo clean
+# First, do the tests
+cd lib && cargo test --release
+retVal=$?
+if [ $retVal -ne 0 ]; then
+    echo "Error"
+    exit $retVal
+fi
+cd ..
 
 # Compile for mac directly
-#cargo build --release 
+cargo build --release 
 
-# For Windows and Linux, build via docker
-docker run --rm -v $(pwd)/:/opt/silentdragonlite-cli rustbuild:latest bash -c "cd /opt/silentdragonlite-cli && cargo build --release && cargo build --release --target x86_64-pc-windows-gnu"
-
-# Now sign and zip the binaries
 #macOS
 rm -rf target/macOS-silentdragonlite-cli-v$APP_VERSION
 mkdir -p target/macOS-silentdragonlite-cli-v$APP_VERSION
 cp target/release/silentdragonlite-cli target/macOS-silentdragonlite-cli-v$APP_VERSION/
+
+# For Windows and Linux, build via docker
+docker run --rm -v $(pwd)/:/opt/zecwallet-light-cli rustbuild:latest bash -c "cd /opt/zecwallet-light-cli && cargo build --release && SODIUM_LIB_DIR='/opt/libsodium-win64/lib/' cargo build --release --target x86_64-pc-windows-gnu"
+
+# Now sign and zip the binaries
+# macOS
 gpg --batch --output target/macOS-silentdragonlite-cli-v$APP_VERSION/silentdragonlite-cli.sig --detach-sig target/macOS-silentdragonlite-cli-v$APP_VERSION/silentdragonlite-cli 
 cd target
 cd macOS-silentdragonlite-cli-v$APP_VERSION
