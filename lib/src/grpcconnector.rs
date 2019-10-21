@@ -284,7 +284,7 @@ pub fn broadcast_raw_tx(uri: &http::Uri, no_cert: bool, tx_bytes: Box<[u8]>) -> 
                             txid = txid[1..txid.len()-1].to_string();
                         }
 
-                        Ok(txid)
+                        Ok(txid)  
                     } else {
                         Err(format!("Error: {:?}", sendresponse))
                     }
