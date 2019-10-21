@@ -169,6 +169,7 @@ impl LightClientConfig {
         match &self.chain_name[..] {
             "main"    => mainnet::B58_PUBKEY_ADDRESS_PREFIX,
             
+            
             c         => panic!("Unknown chain {}", c)
         }
     }
@@ -177,7 +178,8 @@ impl LightClientConfig {
     pub fn base58_script_address(&self) -> [u8; 1] {
         match &self.chain_name[..] {
             "main"    => mainnet::B58_SCRIPT_ADDRESS_PREFIX,
-           
+            
+
             c         => panic!("Unknown chain {}", c)
         }
     }
@@ -299,12 +301,10 @@ impl LightClient {
     }
 
     // Export private keys
-    pub fn do_export(&self, addr: Option<String>) -> JsonValue {
+    pub fn do_export(&self, addr: Option<String>) -> Result<JsonValue, &str> {
         if !self.wallet.read().unwrap().is_unlocked_for_spending() {
             error!("Wallet is locked");
-            return object!{
-                "error" => "Wallet is locked"
-            };
+            return Err("Wallet is locked");
         }
 
         // Clone address so it can be moved into the closure
@@ -342,6 +342,7 @@ impl LightClient {
 
     pub fn do_address(&self) -> JsonValue {
         let wallet = self.wallet.read().unwrap();
+
         // Collect z addresses
         let z_addresses = wallet.zaddress.read().unwrap().iter().map( |ad| {
             encode_payment_address(self.config.hrp_sapling_address(), &ad)
