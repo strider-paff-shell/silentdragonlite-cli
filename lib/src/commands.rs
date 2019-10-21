@@ -196,47 +196,9 @@ impl Command for ExportCommand {
         }
 
         let address = if args.is_empty() { None } else { Some(args[0].to_string()) };
-
-        format!("{}", lightclient.do_export(address).pretty(2))
-    }
-}
-
-struct EncryptCommand {}
-impl Command for EncryptCommand {
-    fn help(&self) -> String {
-        let mut h = vec![];
-        h.push("Encrypt the wallet with a password");
-        h.push("Note 1: This will encrypt the seed and the sapling and transparent private keys.");
-        h.push("        Use 'unlock' to temporarily unlock the wallet for spending or 'decrypt' ");
-        h.push("        to permanatly remove the encryption");
-        h.push("Note 2: If you forget the password, the only way to recover the wallet is to restore");
-        h.push("        from the seed phrase.");
-        h.push("Usage:");
-        h.push("encrypt password");
-        h.push("");
-        h.push("Example:");
-        h.push("encrypt my_strong_password");
-
-        h.join("\n")
-    }
-
-    fn short_help(&self) -> String {
-        "Encrypt the wallet with a password".to_string()
-    }
-
-    fn exec(&self, args: &[&str], lightclient: &LightClient) -> String {
-        if args.len() != 1 {
-            return self.help();
-        }
-
-        let passwd = args[0].to_string();
-
-        match lightclient.wallet.write().unwrap().encrypt(passwd) {
-            Ok(_)  => object!{ "result" => "success" },
-            Err(e) => object!{
-                "result" => "error",
-                "error"  => e.to_string()
-            }
+        match lightclient.do_export(address) {
+            Ok(j)  => j,
+            Err(e) => object!{ "error" => e }
         }.pretty(2)
     }
 }
@@ -347,11 +309,11 @@ impl Command for SendCommand {
         // 2 - A single argument in the form of a JSON string that is "[{address: address, value: value, memo: memo},...]"
 
         // 1 - Destination address. T or Z address
-         if args.len() < 1 || args.len() > 3 {
+        if args.len() < 1 || args.len() > 3 {
             return self.help();
         }
 
-     // Check for a single argument that can be parsed as JSON
+        // Check for a single argument that can be parsed as JSON
         if args.len() == 1 {
             // Sometimes on the command line, people use "'" for the quotes, which json::parse doesn't
             // understand. So replace it with double-quotes
@@ -365,11 +327,11 @@ impl Command for SendCommand {
                 }
             };
 
-         if !json_args.is_array() {
+            if !json_args.is_array() {
                 return format!("Couldn't parse argument as array\n{}", self.help());
             }
 
-                    let maybe_send_args = json_args.members().map( |j| {
+            let maybe_send_args = json_args.members().map( |j| {
                 if !j.has_key("address") || !j.has_key("amount") {
                     Err(format!("Need 'address' and 'amount'\n"))
                 } else {
@@ -397,7 +359,7 @@ impl Command for SendCommand {
             };
 
             let memo = if args.len() == 3 { Some(args[2].to_string()) } else {None};
-
+            
             lightclient.do_sync(true);
             match lightclient.do_send(vec!((args[0], value, memo))) {
                 Ok(txid) => { object!{ "txid" => txid } },
@@ -428,7 +390,7 @@ impl Command for SaveCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-                match lightclient.do_save() {
+        match lightclient.do_save() {
             Ok(_) => {
                 let r = object!{ "result" => "success" };
                 r.pretty(2)
@@ -462,7 +424,10 @@ impl Command for SeedCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-        format!("{}", lightclient.do_seed_phrase().pretty(2))
+        match lightclient.do_seed_phrase() {
+            Ok(j)  => j,
+            Err(e) => object!{ "error" => e }
+        }.pretty(2)
     }
 }
 
@@ -537,7 +502,10 @@ impl Command for NewAddressCommand {
             return format!("No address type specified\n{}", self.help());
         }
 
-        format!("{}", lightclient.do_new_address(args[0]).pretty(2))
+        match lightclient.do_new_address(args[0]) {
+            Ok(j)  => j,
+            Err(e) => object!{ "error" => e }
+        }.pretty(2)
     }
 }
 
@@ -620,7 +588,7 @@ impl Command for QuitCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-                match lightclient.do_save() {
+        match lightclient.do_save() {
             Ok(_) => {"".to_string()},
             Err(e) => e
         }
