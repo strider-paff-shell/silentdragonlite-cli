@@ -196,8 +196,50 @@ impl Command for ExportCommand {
         }
 
         let address = if args.is_empty() { None } else { Some(args[0].to_string()) };
+        match lightclient.do_export(address) {
+            Ok(j)  => j,
+            Err(e) => object!{ "error" => e }
+        }.pretty(2)
+    }
+}
 
-        format!("{}", lightclient.do_export(address).pretty(2))
+struct EncryptCommand {}
+impl Command for EncryptCommand {
+    fn help(&self) -> String {
+        let mut h = vec![];
+        h.push("Encrypt the wallet with a password");
+        h.push("Note 1: This will encrypt the seed and the sapling and transparent private keys.");
+        h.push("        Use 'unlock' to temporarily unlock the wallet for spending or 'decrypt' ");
+        h.push("        to permanatly remove the encryption");
+        h.push("Note 2: If you forget the password, the only way to recover the wallet is to restore");
+        h.push("        from the seed phrase.");
+        h.push("Usage:");
+        h.push("encrypt password");
+        h.push("");
+        h.push("Example:");
+        h.push("encrypt my_strong_password");
+
+        h.join("\n")
+    }
+
+    fn short_help(&self) -> String {
+        "Encrypt the wallet with a password".to_string()
+    }
+
+    fn exec(&self, args: &[&str], lightclient: &LightClient) -> String {
+        if args.len() != 1 {
+            return self.help();
+        }
+
+        let passwd = args[0].to_string();
+
+        match lightclient.wallet.write().unwrap().encrypt(passwd) {
+            Ok(_)  => object!{ "result" => "success" },
+            Err(e) => object!{
+                "result" => "error",
+                "error"  => e.to_string()
+            }
+        }.pretty(2)
     }
 }
 
@@ -428,7 +470,7 @@ impl Command for SaveCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-                match lightclient.do_save() {
+        match lightclient.do_save() {
             Ok(_) => {
                 let r = object!{ "result" => "success" };
                 r.pretty(2)
@@ -462,7 +504,10 @@ impl Command for SeedCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-        format!("{}", lightclient.do_seed_phrase().pretty(2))
+        match lightclient.do_seed_phrase() {
+            Ok(j)  => j,
+            Err(e) => object!{ "error" => e }
+        }.pretty(2)
     }
 }
 
@@ -537,7 +582,10 @@ impl Command for NewAddressCommand {
             return format!("No address type specified\n{}", self.help());
         }
 
-        format!("{}", lightclient.do_new_address(args[0]).pretty(2))
+        match lightclient.do_new_address(args[0]) {
+            Ok(j)  => j,
+            Err(e) => object!{ "error" => e }
+        }.pretty(2)
     }
 }
 
@@ -620,7 +668,7 @@ impl Command for QuitCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-                match lightclient.do_save() {
+        match lightclient.do_save() {
             Ok(_) => {"".to_string()},
             Err(e) => e
         }
