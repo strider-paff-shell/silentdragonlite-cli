@@ -39,6 +39,7 @@ use zcash_primitives::{
     primitives::{PaymentAddress},
 };
 
+
 use crate::lightclient::{LightClientConfig};
 
 mod data;
@@ -56,6 +57,7 @@ pub const MAX_REORG: usize = 100;
 fn now() -> f64 {
     SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as f64
 }
+
 
 /// Sha256(Sha256(value))
 pub fn double_sha256(payload: &[u8]) -> Vec<u8> {
@@ -3115,14 +3117,14 @@ pub mod tests {
 
         // Test the addresses against https://iancoleman.io/bip39/
         let (taddr, pk) = &wallet.get_t_secret_keys()[0];
-        assert_eq!(taddr, "t1eQ63fwkQ4n4Eo5uCrPGaAV8FWB2tmx7ui");
-        assert_eq!(pk, "Kz9ybX4giKag4NtnP1pi8WQF2B2hZDkFU85S7Dciz3UUhM59AnhE");
+        assert_eq!(taddr, "RGwRpye9L1n4NtJGqkPB3H8jSaksLpSSQS");
+        assert_eq!(pk, "L2TVKuDeSjbrDgbMLF9MwsKPtrfQZGfQruVWLrfLaqWWsujV69by");
 
         // Test a couple more
         wallet.add_taddr();
         let (taddr, pk) = &wallet.get_t_secret_keys()[1];
-        assert_eq!(taddr, "t1NoS6ZgaUTpmjkge2cVpXGcySasdYDrXqh");
-        assert_eq!(pk, "KxdmS38pxskS6bbKX43zhTu8ppWckNmWjKsQFX1hwidvhRRgRd3c");
+        assert_eq!(taddr, "RSPeECXAqop9vdbWJY6BUA9xhsidDLQ2Dh");
+        assert_eq!(pk, "L5igbzBEFsQxPkmGUqmf1CfV2AeqcbthDB5BgiCu2FVap2M52KLc");
 
         let (zaddr, sk) = &wallet.get_z_private_keys()[0];
         assert_eq!(zaddr, "zs1q6xk3q783t5k92kjqt2rkuuww8pdw2euzy5rk6jytw97enx8fhpazdv3th4xe7vsk6e9sfpawfg");
