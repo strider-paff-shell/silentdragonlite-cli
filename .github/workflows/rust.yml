@@ -1,0 +1,93 @@
+name: Rust
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.38.0
+          override: true
+      - name: cargo fetch
+        uses: actions-rs/cargo@v1
+        with:
+          command: fetch
+      - name: Build 
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --verbose --release --all
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --verbose --release --all
+      - name: Upload ubuntu/macos
+        uses: actions/upload-artifact@v1
+        if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu') 
+        with:
+<<<<<<< HEAD
+          name: ${{ matrix.os }}-silentdragonlite-cli
+          path: target/release/silentdragonlite-cli
+=======
+          name: ${{ matrix.os }}-silentdragonlite-cli
+          path: target/release/silentdragonlite-cli
+      - name: Upload windows
+        uses: actions/upload-artifact@v1
+        if: contains(matrix.os, 'windows')
+        with:
+          name: ${{ matrix.os }}-silentdragonlite-cli.exe
+          path: target/release/silentdragonlite-cli.exe
+
+>>>>>>> 959755d705b18d13a8dbdf0502c47818fe7a4e94
+
+  linux_arm7:
+      name: Linux ARMv7
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@master
+        - uses: actions-rs/toolchain@v1
+          with:
+            toolchain: stable
+            target: armv7-unknown-linux-gnueabihf
+            override: true
+        - uses: actions-rs/cargo@v1
+          with:
+            use-cross: true
+            command: build
+            args: --release --target armv7-unknown-linux-gnueabihf
+        - name: Upload
+          uses: actions/upload-artifact@v1
+          with:
+            name: linux_armv7-silentdragonlite-cli
+            path: target/armv7-unknown-linux-gnueabihf/release/silentdragonlite-cli
+
+  linux_aarch64:
+      name: Linux ARM64
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@master
+        - uses: actions-rs/toolchain@v1
+          with:
+            toolchain: stable
+            target: aarch64-unknown-linux-gnu
+            override: true
+        - uses: actions-rs/cargo@v1
+          with:
+            use-cross: true
+            command: build
+            args: --release --target aarch64-unknown-linux-gnu
+        - name: Upload
+          uses: actions/upload-artifact@v1
+          with:
+            name: linux_aarch64-silentdragonlite-cli
+            path: target/aarch64-unknown-linux-gnu/release/silentdragonlite-cli            
+
