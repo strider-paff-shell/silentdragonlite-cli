@@ -30,11 +30,24 @@ jobs:
         with:
           command: test
           args: --verbose --release --all
-      - name: Upload
+      - name: Upload ubuntu/macos
         uses: actions/upload-artifact@v1
+        if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu') 
         with:
+<<<<<<< HEAD
           name: ${{ matrix.os }}-silentdragonlite-cli
           path: target/release/silentdragonlite-cli
+=======
+          name: ${{ matrix.os }}-silentdragonlite-cli
+          path: target/release/silentdragonlite-cli
+      - name: Upload windows
+        uses: actions/upload-artifact@v1
+        if: contains(matrix.os, 'windows')
+        with:
+          name: ${{ matrix.os }}-silentdragonlite-cli.exe
+          path: target/release/silentdragonlite-cli.exe
+
+>>>>>>> 959755d705b18d13a8dbdf0502c47818fe7a4e94
 
   linux_arm7:
       name: Linux ARMv7
