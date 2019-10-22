@@ -1,5 +1,5 @@
 ///
-/// In v1.0 of zecwallet-cli, there was a bug that incorrectly derived HD wallet keys after the first key. That is, the 
+/// In v1.0 of silentdragonlite-cli, there was a bug that incorrectly derived HD wallet keys after the first key. That is, the 
 /// first key, address was correct, but subsequent ones were not. 
 /// 
 /// The issue was that the 32-byte seed was directly being used to derive then subsequent addresses instead of the 

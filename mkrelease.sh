@@ -43,7 +43,7 @@ mkdir -p target/macOS-silentdragonlite-cli-v$APP_VERSION
 cp target/release/silentdragonlite-cli target/macOS-silentdragonlite-cli-v$APP_VERSION/
 
 # For Windows and Linux, build via docker
-docker run --rm -v $(pwd)/:/opt/zecwallet-light-cli rustbuild:latest bash -c "cd /opt/zecwallet-light-cli && cargo build --release && SODIUM_LIB_DIR='/opt/libsodium-win64/lib/' cargo build --release --target x86_64-pc-windows-gnu"
+docker run --rm -v $(pwd)/:/opt/silentdragonlite-light-cli rustbuild:latest bash -c "cd /opt/silentdragonlite-light-cli && cargo build --release && SODIUM_LIB_DIR='/opt/libsodium-win64/lib/' cargo build --release --target x86_64-pc-windows-gnu"
 
 # Now sign and zip the binaries
 # macOS

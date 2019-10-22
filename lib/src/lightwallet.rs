@@ -1388,10 +1388,10 @@ impl LightWallet {
         let mut builder = Builder::new(height);
 
         // A note on t addresses
-        // Funds received by t-addresses can't be explicitly spent in ZecWallet. 
-        // ZecWallet will lazily consolidate all t address funds into your shielded addresses. 
+        // Funds received by t-addresses can't be explicitly spent in silentdragonlite. 
+        // silentdragonlite will lazily consolidate all t address funds into your shielded addresses. 
         // Specifically, if you send an outgoing transaction that is sent to a shielded address,
-        // ZecWallet will add all your t-address funds into that transaction, and send them to your shielded
+        // silentdragonlite will add all your t-address funds into that transaction, and send them to your shielded
         // address as change.
         let tinputs: Vec<_> = self.get_utxos().iter()
                                 .filter(|utxo| utxo.unconfirmed_spent.is_none()) // Remove any unconfirmed spends
