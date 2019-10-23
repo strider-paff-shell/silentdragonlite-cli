@@ -38,34 +38,34 @@ sodiumoxide = "0.2.5"
 
 [dependencies.bellman]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "b51e7c055b9dff6fc6e15a7b619a2d2416b0ca8e"
+rev= "caaee693c47c2ee9ecd1e1546b8fe3c714f342bc"
 default-features = false
 features = ["groth16"]
 
 [dependencies.pairing]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "b51e7c055b9dff6fc6e15a7b619a2d2416b0ca8e"
+rev= "caaee693c47c2ee9ecd1e1546b8fe3c714f342bc"
 
 [dependencies.zcash_client_backend]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "b51e7c055b9dff6fc6e15a7b619a2d2416b0ca8e"
+rev= "caaee693c47c2ee9ecd1e1546b8fe3c714f342bc"
 
 default-features = false
 
 [dependencies.zcash_primitives]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "b51e7c055b9dff6fc6e15a7b619a2d2416b0ca8e"
+rev= "caaee693c47c2ee9ecd1e1546b8fe3c714f342bc"
 default-features = false
 features = ["transparent-inputs"]
 
 [dependencies.zcash_proofs]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "b51e7c055b9dff6fc6e15a7b619a2d2416b0ca8e"
+rev= "caaee693c47c2ee9ecd1e1546b8fe3c714f342bc"
 default-features = false
 
 [dependencies.ff]
 git = "https://github.com/DenioD/librustzcash.git"
-rev= "b51e7c055b9dff6fc6e15a7b619a2d2416b0ca8e"
+rev= "caaee693c47c2ee9ecd1e1546b8fe3c714f342bc"
 features = ["ff_derive"]
 
 [build-dependencies]
