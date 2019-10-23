@@ -708,7 +708,7 @@ impl LightClient {
         let wallet = self.wallet.write().unwrap();
 
         let new_address = match addr_type {
-            "zs1" => wallet.add_zaddr(),
+            "zs" => wallet.add_zaddr(),
             "R" => wallet.add_taddr(),
             _   => {
                 let e = format!("Unrecognized address type: {}", addr_type);
@@ -979,7 +979,7 @@ pub mod tests {
         let lc = super::LightClient::unconnected(TEST_SEED.to_string(), None).unwrap();
 
         assert!(!lc.do_export(None).is_err());
-        assert!(!lc.do_new_address("zs1").is_err());
+        assert!(!lc.do_new_address("zs").is_err());
         assert!(!lc.do_new_address("R").is_err());
         assert_eq!(lc.do_seed_phrase().unwrap()["seed"], TEST_SEED.to_string());
 
@@ -988,15 +988,15 @@ pub mod tests {
         assert!(lc.do_export(None).is_err());
         assert!(lc.do_seed_phrase().is_err());
         assert!(lc.do_new_address("R").is_err());
-        assert!(lc.do_new_address("zs1").is_err());
-        assert!(lc.do_send(vec![("zs1", 0, None)]).is_err());
+        assert!(lc.do_new_address("zs").is_err());
+        assert!(lc.do_send(vec![("zs", 0, None)]).is_err());
 
         // Do a unlock, and make sure it all works now
         lc.wallet.write().unwrap().unlock("password".to_string()).unwrap();
         assert!(!lc.do_export(None).is_err());
         assert!(!lc.do_seed_phrase().is_err());
         assert!(!lc.do_new_address("R").is_err());
-        assert!(!lc.do_new_address("zs1").is_err());
+        assert!(!lc.do_new_address("zs").is_err());
     }
 
     #[test]
@@ -1007,8 +1007,8 @@ pub mod tests {
             
         let taddr1 = lc.do_new_address("R").unwrap()[0].as_str().unwrap().to_string();
         let taddr2 = lc.do_new_address("R").unwrap()[0].as_str().unwrap().to_string();        
-        let zaddr1 = lc.do_new_address("zs1").unwrap()[0].as_str().unwrap().to_string();
-        let zaddr2 = lc.do_new_address("zs1").unwrap()[0].as_str().unwrap().to_string();
+        let zaddr1 = lc.do_new_address("zs").unwrap()[0].as_str().unwrap().to_string();
+        let zaddr2 = lc.do_new_address("zs").unwrap()[0].as_str().unwrap().to_string();
         
         let addresses = lc.do_address();
         assert_eq!(addresses["z_addresses"].len(), 3);
