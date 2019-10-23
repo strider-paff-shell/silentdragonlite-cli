@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-16.04, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
       - uses: actions/checkout@v1
@@ -34,15 +34,31 @@ jobs:
         uses: actions/upload-artifact@v1
         if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu') 
         with:
+<<<<<<< HEAD
+<<<<<<< HEAD
           name: ${{ matrix.os }}-silentdragonlite-cli
           path: target/release/silentdragonlite-cli
+=======
+          name: ${{ matrix.os }}-silentdragonlite-cli
+          path: target/release/silentdragonlite-cli
+=======
+          name: ${{ matrix.os }}-zecwallet-cli
+          path: target/release/zecwallet-cli
+>>>>>>> 959755d705b18d13a8dbdf0502c47818fe7a4e94
       - name: Upload windows
         uses: actions/upload-artifact@v1
         if: contains(matrix.os, 'windows')
         with:
+<<<<<<< HEAD
           name: ${{ matrix.os }}-silentdragonlite-cli.exe
           path: target/release/silentdragonlite-cli.exe
 
+>>>>>>> 959755d705b18d13a8dbdf0502c47818fe7a4e94
+=======
+          name: ${{ matrix.os }}-zecwallet-cli.exe
+          path: target/release/zecwallet-cli.exe
+
+>>>>>>> 959755d705b18d13a8dbdf0502c47818fe7a4e94
 
   linux_arm7:
       name: Linux ARMv7
