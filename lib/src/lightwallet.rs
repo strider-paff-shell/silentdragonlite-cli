@@ -153,7 +153,7 @@ impl LightWallet {
         let extsk: ExtendedSpendingKey = ExtendedSpendingKey::from_path(
             &ExtendedSpendingKey::master(bip39_seed),
             &[
-                ChildIndex::Hardened(32),
+                ChildIndex::Hardened(31),
                 ChildIndex::Hardened(config.get_coin_type()),
                 ChildIndex::Hardened(pos)
             ],
