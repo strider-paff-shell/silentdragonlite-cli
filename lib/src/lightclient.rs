@@ -436,16 +436,16 @@ impl LightClient {
         let z_addresses = wallet.zaddress.read().unwrap().iter().map( |ad| {
             let address = encode_payment_address(self.config.hrp_sapling_address(), &ad);
             object!{
-                "address" => address.clone(),
-                "zbalance" => wallet.zbalance(Some(address.clone())),
-                "verified_zbalance" => wallet.verified_zbalance(Some(address)),
+                "address" => address.clone() ,
+                "zbalance" => wallet.zbalance(Some(address.clone())) ,
+                "verified_zbalance" => wallet.verified_zbalance(Some(address)) ,
             }
         }).collect::<Vec<JsonValue>>();
 
         // Collect t addresses
         let t_addresses = wallet.taddresses.read().unwrap().iter().map( |address| {
             // Get the balance for this address
-            let balance = wallet.tbalance(Some(address.clone()));
+            let balance = wallet.tbalance(Some(address.clone())) ;
             
             object!{
                 "address" => address.clone(),
@@ -456,7 +456,7 @@ impl LightClient {
         object!{
             "zbalance"           => wallet.zbalance(None),
             "verified_zbalance"  => wallet.verified_zbalance(None),
-            "tbalance"           => wallet.tbalance(None),
+            "tbalance"           => wallet.tbalance(None), 
             "z_addresses"        => z_addresses,
             "t_addresses"        => t_addresses,
         }
