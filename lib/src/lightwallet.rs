@@ -153,7 +153,7 @@ impl LightWallet {
         let extsk: ExtendedSpendingKey = ExtendedSpendingKey::from_path(
             &ExtendedSpendingKey::master(bip39_seed),
             &[
-                ChildIndex::Hardened(31),
+                ChildIndex::Hardened(32),
                 ChildIndex::Hardened(config.get_coin_type()),
                 ChildIndex::Hardened(pos)
             ],
@@ -1343,7 +1343,7 @@ impl LightWallet {
 
         let total_value = tos.iter().map(|to| to.1).sum::<u64>();
         println!(
-            "0: Creating transaction sending {} ztoshis to {} addresses",
+            "0: Creating transaction sending {} puposhis to {} addresses",
             total_value, tos.len()
         );
 
