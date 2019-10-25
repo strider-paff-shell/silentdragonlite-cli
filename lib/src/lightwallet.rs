@@ -748,9 +748,9 @@ impl LightWallet {
     }
 
     pub fn zbalance(&self, addr: Option<String>) -> u64 {
-        self.txs.read().unwrap()
+        self.txs.read().unwrap() 
             .values()
-            .map(|tx| {
+            .map (|tx| {
                 tx.notes.iter()
                     .filter(|nd| {  // TODO, this whole section is shared with verified_balance. Refactor it. 
                         match addr.clone() {
@@ -763,9 +763,11 @@ impl LightWallet {
                         }
                     })
                     .map(|nd| if nd.spent.is_none() { nd.note.value } else { 0 })
-                    .sum::<u64>()
+                   .sum::<u64>() 
+
             })
-            .sum::<u64>()
+            .sum::<u64>() as u64
+
     }
 
     // Get all (unspent) utxos. Unconfirmed spent utxos are included
@@ -789,7 +791,7 @@ impl LightWallet {
                 }
             })
             .map(|utxo| utxo.value )
-            .sum::<u64>()
+            .sum::<u64>() as u64
     }
 
     pub fn verified_zbalance(&self, addr: Option<String>) -> u64 {
@@ -822,7 +824,7 @@ impl LightWallet {
                     0
                 }
             })
-            .sum::<u64>()
+            .sum::<u64>() as u64
     }
 
     fn add_toutput_to_wtx(&self, height: i32, timestamp: u64, txid: &TxId, vout: &TxOut, n: u64) {
@@ -1341,7 +1343,7 @@ impl LightWallet {
             }
         }
 
-        let total_value = tos.iter().map(|to| to.1).sum::<u64>();
+        let total_value = tos.iter().map(|to| to.1).sum::<u64>() as u64;
         println!(
             "0: Creating transaction sending {} puposhis to {} addresses",
             total_value, tos.len()
