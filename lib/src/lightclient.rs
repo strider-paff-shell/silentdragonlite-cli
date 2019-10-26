@@ -103,7 +103,7 @@ impl LightClientConfig {
                 zcash_data_location.push("HUSH3");
             } else {
                 zcash_data_location = dirs::home_dir().expect("Couldn't determine home directory!");
-                zcash_data_location.push(".komodo/HUSH3/");
+                zcash_data_location.push(".komodo/HUSH3");
             };
 
             match &self.chain_name[..] {
