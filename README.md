@@ -16,7 +16,7 @@ Run `silentdragonlite-cli help` to see a list of all commands.
 ## Notes:
 * If you want to run your own server, please see [SilentDragonLite-cli lightwalletd](https://github.com/MyHush/lightwalletd), and then run `./silentdragonlite-cli --server http://127.0.0.1:9069`. You might also need to pass `--dangerous` if you are using a self-signed  TLS certificate.
 
-* The log file is in `~/.komodo/HUSH3/silentdragonlite-cli.debug.log`. Wallet is stored in `~/.komodo/HUSH3/silentdragonlite-cli.dat`
+* The log file is in `~/.silentdragonlite/silentdragonlite-cli.debug.log`. Wallet is stored in `~/.silentdragonlite/silentdragonlite-cli.dat`
 
 ### Note Management
 silentdragonlite does automatic note and utxo management, which means it doesn't allow you to manually select which address to send outgoing transactions from. It follows these principles:

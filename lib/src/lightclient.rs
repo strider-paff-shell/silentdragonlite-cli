@@ -28,8 +28,8 @@ use crate::ANCHOR_OFFSET;
 mod checkpoints;
 
 pub const DEFAULT_SERVER: &str = "https://";
-pub const WALLET_NAME: &str    = "silentdragonlite-cli-wallet.dat";
-pub const LOGFILE_NAME: &str   = "silentdragonlite-cli-wallet.debug.log";
+pub const WALLET_NAME: &str    = "silentdragonlite-wallet.dat";
+pub const LOGFILE_NAME: &str   = "silentdragonlite-wallet.debug.log";
 
 #[derive(Clone, Debug)]
 pub struct WalletStatus {
@@ -100,10 +100,10 @@ impl LightClientConfig {
         } else {
             if cfg!(target_os="macos") || cfg!(target_os="windows") {
                 zcash_data_location = dirs::data_dir().expect("Couldn't determine app data directory!");
-                zcash_data_location.push("HUSH3");
+                zcash_data_location.push("silentdragonlite");
             } else {
                 zcash_data_location = dirs::home_dir().expect("Couldn't determine home directory!");
-                zcash_data_location.push(".komodo/HUSH3");
+                zcash_data_location.push("/.silentdragonlite");
             };
 
             match &self.chain_name[..] {
