@@ -103,7 +103,7 @@ impl LightClientConfig {
                 zcash_data_location.push("silentdragonlite");
             } else {
                 zcash_data_location = dirs::home_dir().expect("Couldn't determine home directory!");
-                zcash_data_location.push("/.silentdragonlite/");
+                zcash_data_location.push("silentdragonlite/");
             };
 
             match &self.chain_name[..] {

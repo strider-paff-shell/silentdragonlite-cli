@@ -75,11 +75,11 @@ pub fn report_permission_error() {
     eprintln!("HOME: {}", home);
     eprintln!("Executable: {}", current_executable.display());
     if home == "/" {
-        eprintln!("User {} must have permission to write to '{}.silentdragonlite/' .",
+        eprintln!("User {} must have permission to write to '{}silentdragonlite/' .",
                   user,
                   home);
     } else {
-        eprintln!("User {} must have permission to write to '{}/.silentdragonlite/' .",
+        eprintln!("User {} must have permission to write to '{}/silentdragonlite/' .",
                   user,
                   home);
     }
