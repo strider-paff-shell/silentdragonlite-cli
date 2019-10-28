@@ -641,7 +641,8 @@ impl LightClient {
 
     pub fn do_list_transactions(&self) -> JsonValue {
         let wallet = self.wallet.read().unwrap();
-        // Create a list of TransactionItems
+
+        // Create a list of TransactionItems from wallet txns
         let mut tx_list = wallet.txs.read().unwrap().iter()
             .flat_map(| (_k, v) | {
                 let mut txns: Vec<JsonValue> = vec![];
@@ -708,6 +709,33 @@ impl LightClient {
                 txns
             })
             .collect::<Vec<JsonValue>>();
+
+        // Add in all mempool txns
+        tx_list.extend(wallet.mempool_txs.read().unwrap().iter().map( |(_, wtx)| {
+            use zcash_primitives::transaction::components::amount::DEFAULT_FEE;
+            use std::convert::TryInto;
+            
+            let amount: u64 = wtx.outgoing_metadata.iter().map(|om| om.value).sum::<u64>();
+            let fee: u64 = DEFAULT_FEE.try_into().unwrap();
+
+            // Collect outgoing metadata
+            let outgoing_json = wtx.outgoing_metadata.iter()
+                .map(|om| 
+                    object!{
+                        "address" => om.address.clone(),
+                        "value"   => om.value,
+                        "memo"    => LightWallet::memo_str(&Some(om.memo.clone())),
+                }).collect::<Vec<JsonValue>>();                    
+
+            object! {
+                "block_height" => wtx.block,
+                "datetime"     => wtx.datetime,
+                "txid"         => format!("{}", wtx.txid),
+                "amount"       => -1 * (fee + amount) as i64,
+                "unconfirmed"  => true,
+                "outgoing_metadata" => outgoing_json,
+            }
+        }));
 
         tx_list.sort_by( |a, b| if a["block_height"] == b["block_height"] {
                                     a["txid"].as_str().cmp(&b["txid"].as_str())
