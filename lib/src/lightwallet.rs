@@ -769,7 +769,7 @@ impl LightWallet {
                             None    => true
                         }
                     })
-                    .map(|nd| if nd.spent.is_none() && nd.unconfirmed_spent.is_none() { nd.note.value } else { 0 })
+                    .map(|nd| if nd.spent.is_none() { nd.note.value } else { 0 })
                     .sum::<u64>()
             })
             .sum::<u64>() as u64
@@ -1471,7 +1471,7 @@ impl LightWallet {
         if selected_value < u64::from(target_value) {
             let e = format!(
                 "Insufficient verified funds (have {}, need {:?}). NOTE: funds need {} confirmations before they can be spent.",
-                selected_value, target_value, self.config.anchor_offset
+                selected_value, target_value, self.config.anchor_offset + 1
             );
             error!("{}", e);
             return Err(e);

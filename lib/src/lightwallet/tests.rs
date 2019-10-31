@@ -706,6 +706,12 @@ fn test_z_spend_to_z() {
     let branch_id = u32::from_str_radix("76b809bb", 16).unwrap();
     let (ss, so) = get_sapling_params().unwrap();
 
+    // Make sure that the balance exists 
+    {
+        assert_eq!(wallet.zbalance(None), AMOUNT1);
+        assert_eq!(wallet.verified_zbalance(None), AMOUNT1);
+    }
+
     // Create a tx and send to address
     let raw_tx = wallet.send_to_address(branch_id, &ss, &so,
                             vec![(&ext_address, AMOUNT_SENT, Some(outgoing_memo.clone()))]).unwrap();
@@ -736,6 +742,12 @@ fn test_z_spend_to_z() {
         assert_eq!(mem[&sent_txid].outgoing_metadata[0].memo.to_utf8().unwrap().unwrap(), outgoing_memo);
     }
 
+    {
+        // The wallet should deduct this from the verified balance. The zbalance still includes it
+        assert_eq!(wallet.zbalance(None), AMOUNT1);
+        assert_eq!(wallet.verified_zbalance(None), 0);
+    }
+
     let mut cb3 = FakeCompactBlock::new(2, block_hash);
     cb3.add_tx(&sent_tx);
     wallet.scan_block(&cb3.as_bytes()).unwrap();
@@ -751,6 +763,7 @@ fn test_z_spend_to_z() {
         // The sent tx should generate change
         assert_eq!(txs[&sent_txid].notes.len(), 1);
         assert_eq!(txs[&sent_txid].notes[0].note.value, AMOUNT1 - AMOUNT_SENT - fee);
+        assert_eq!(wallet.zbalance(None), AMOUNT1 - AMOUNT_SENT - fee);
         assert_eq!(txs[&sent_txid].notes[0].is_change, true);
         assert_eq!(txs[&sent_txid].notes[0].spent, None);
         assert_eq!(txs[&sent_txid].notes[0].unconfirmed_spent, None);
