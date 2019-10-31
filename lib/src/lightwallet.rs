@@ -1471,7 +1471,7 @@ impl LightWallet {
         if selected_value < u64::from(target_value) {
             let e = format!(
                 "Insufficient verified funds (have {}, need {:?}). NOTE: funds need {} confirmations before they can be spent.",
-                selected_value, target_value, self.config.anchor_offset - 2
+                selected_value, target_value, self.config.anchor_offset 
             );
             error!("{}", e);
             return Err(e);
