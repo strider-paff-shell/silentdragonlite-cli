@@ -802,7 +802,7 @@ impl LightWallet {
 
     pub fn verified_zbalance(&self, addr: Option<String>) -> u64 {
         let anchor_height = match self.get_target_height_and_anchor_offset() {
-            Some((height, anchor_offset)) => height - anchor_offset as u32 - 1,
+            Some((height, anchor_offset)) => height - anchor_offset as u32 ,
             None => return 0,
         };
 
@@ -1471,7 +1471,7 @@ impl LightWallet {
         if selected_value < u64::from(target_value) {
             let e = format!(
                 "Insufficient verified funds (have {}, need {:?}). NOTE: funds need {} confirmations before they can be spent.",
-                selected_value, target_value, self.config.anchor_offset - 2
+                selected_value, target_value, self.config.anchor_offset 
             );
             error!("{}", e);
             return Err(e);
