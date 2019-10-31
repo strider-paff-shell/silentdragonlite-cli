@@ -802,7 +802,7 @@ impl LightWallet {
 
     pub fn verified_zbalance(&self, addr: Option<String>) -> u64 {
         let anchor_height = match self.get_target_height_and_anchor_offset() {
-            Some((height, anchor_offset)) => height - anchor_offset as u32 - 1,
+            Some((height, anchor_offset)) => height - anchor_offset as u32 ,
             None => return 0,
         };
 
