@@ -27,7 +27,7 @@ use crate::ANCHOR_OFFSET;
 
 mod checkpoints;
 
-pub const DEFAULT_SERVER: &str = "https://";
+pub const DEFAULT_SERVER: &str = "https://hush-lightwallet.de:443";
 pub const WALLET_NAME: &str    = "silentdragonlite-wallet.dat";
 pub const LOGFILE_NAME: &str   = "silentdragonlite-wallet.debug.log";
 
@@ -110,7 +110,7 @@ impl LightClientConfig {
                 zcash_data_location.push("silentdragonlite");
             } else {
                 zcash_data_location = dirs::home_dir().expect("Couldn't determine home directory!");
-                zcash_data_location.push("silentdragonlite/");
+                zcash_data_location.push(".silentdragonlite");
             };
 
             match &self.chain_name[..] {
