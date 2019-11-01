@@ -75,11 +75,11 @@ pub fn report_permission_error() {
     eprintln!("HOME: {}", home);
     eprintln!("Executable: {}", current_executable.display());
     if home == "/" {
-        eprintln!("User {} must have permission to write to '{}silentdragonlite/' .",
+        eprintln!("User {} must have permission to write to '{}.silentdragonlite/' .",
                   user,
                   home);
     } else {
-        eprintln!("User {} must have permission to write to '{}/silentdragonlite/' .",
+        eprintln!("User {} must have permission to write to '{}/.silentdragonlite/' .",
                   user,
                   home);
     }
@@ -89,7 +89,7 @@ pub fn report_permission_error() {
 pub fn get_log_config(config: &LightClientConfig) -> io::Result<Config> {
     let window_size = 3; // log0, log1, log2
     let fixed_window_roller =
-        FixedWindowRoller::builder().build("Silentdragonlite-light-wallet-log{}",window_size).unwrap();
+        FixedWindowRoller::builder().build("Silentdragonlite-wallet-log{}",window_size).unwrap();
     let size_limit = 5 * 1024 * 1024; // 5MB as max log file size to roll
     let size_trigger = SizeTrigger::new(size_limit);
     let compound_policy = CompoundPolicy::new(Box::new(size_trigger),Box::new(fixed_window_roller));
