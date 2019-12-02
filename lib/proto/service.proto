@@ -53,6 +53,8 @@ message LightdInfo {
     string consensusBranchId = 6;   // This should really be u32 or []byte, but string for readability
     uint64 blockHeight = 7;
     uint64 difficulty = 8;
+    uint64 longestchain = 9;
+    uint64 notarized = 10;
 }
 
 message TransparentAddress {
