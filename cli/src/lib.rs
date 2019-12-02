@@ -238,6 +238,7 @@ pub fn attempt_recover_seed() {
         server: "0.0.0.0:0".parse().unwrap(),
         chain_name: "main".to_string(),
         sapling_activation_height: 0,
+      //  difficulty: 0,
         consensus_branch_id: "000000".to_string(),
         anchor_offset: 0,
         no_cert_verification: false,

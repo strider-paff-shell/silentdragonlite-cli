@@ -102,6 +102,7 @@ impl LightClientConfig {
             chain_name                  : info.chain_name,
             sapling_activation_height   : info.sapling_activation_height,
             consensus_branch_id         : info.consensus_branch_id,
+            //difficulty                  : info.difficulty,
             anchor_offset               : ANCHOR_OFFSET,
             no_cert_verification        : dangerous,
             data_dir                    : None,
@@ -592,7 +593,8 @@ impl LightClient {
                     "chain_name" => i.chain_name,
                     "sapling_activation_height" => i.sapling_activation_height,
                     "consensus_branch_id" => i.consensus_branch_id,
-                    "latest_block_height" => i.block_height
+                    "latest_block_height" => i.block_height,
+                    "difficulty" => i.difficulty,
                 };
                 o.pretty(2)
             },
