@@ -723,7 +723,7 @@ impl LightClient {
             .flat_map(| (_k, v) | {
                 let mut txns: Vec<JsonValue> = vec![];
 
-                if v.total_shielded_value_spent > 0 {
+                if v.total_shielded_value_spent + v.total_transparent_value_spent > 0 {
                     // If money was spent, create a transaction. For this, we'll subtract
                     // all the change notes. TODO: Add transparent change here to subtract it also
                     let total_change: u64 = v.notes.iter()
@@ -830,17 +830,21 @@ impl LightClient {
             return Err("Wallet is locked".to_string());
         }
 
-        let wallet = self.wallet.write().unwrap();
+        let new_address = {
+            let wallet = self.wallet.write().unwrap();
 
-        let new_address = match addr_type {
-            "zs" => wallet.add_zaddr(),
-            "R" => wallet.add_taddr(),
-            _   => {
-                let e = format!("Unrecognized address type: {}", addr_type);
-                error!("{}", e);
-                return Err(e);
+            match addr_type {
+                "zs" => wallet.add_zaddr(),
+                "R" => wallet.add_taddr(),
+                _   => {
+                    let e = format!("Unrecognized address type: {}", addr_type);
+                    error!("{}", e);
+                    return Err(e);
+                }
             }
         };
+
+        self.do_save()?;
 
         Ok(array![new_address])
     }
@@ -865,6 +869,8 @@ impl LightClient {
 
         // Then, do a sync, which will force a full rescan from the initial state
         let response = self.do_sync(true);
+
+        self.do_save()?;
         info!("Rescan finished");
 
         response
@@ -1158,7 +1164,11 @@ pub mod tests {
         lc.wallet.write().unwrap().unlock("password".to_string()).unwrap();
         assert!(!lc.do_export(None).is_err());
         assert!(!lc.do_seed_phrase().is_err());
+
+        // This will lock the wallet again, so after this, we'll need to unlock again
         assert!(!lc.do_new_address("R").is_err());
+        lc.wallet.write().unwrap().unlock("password".to_string()).unwrap();
+        
         assert!(!lc.do_new_address("zs").is_err());
     }
 
