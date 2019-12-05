@@ -603,6 +603,24 @@ impl LightClient {
         }
     }
 
+    pub fn do_coinsupply(&self) -> String {
+        match get_coinsupply(self.get_server_uri(), self.config.no_cert_verification) {
+            Ok(i) => {
+                let o = object!{
+                    "result" => i.result,
+                    "coin" => i.coin,
+                    "height" => i.height,
+                    "supply" => i.supply,
+                    "zfunds" => i.zfunds,
+                    "total" => i.total,
+                   
+                };
+                o.pretty(2)
+            },
+            Err(e) => e
+        }
+    }
+
     pub fn do_seed_phrase(&self) -> Result<JsonValue, &str> {
         if !self.wallet.read().unwrap().is_unlocked_for_spending() {
             error!("Wallet is locked");

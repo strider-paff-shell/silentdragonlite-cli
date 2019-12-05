@@ -20,7 +20,7 @@ use tokio::net::tcp::TcpStream;
 use zcash_primitives::transaction::{TxId};
 
 use crate::grpc_client::{ChainSpec, BlockId, BlockRange, RawTransaction, 
-                         TransparentAddressBlockFilter, TxFilter, Empty, LightdInfo};
+                         TransparentAddressBlockFilter, TxFilter, Empty, LightdInfo,Coinsupply};
 use crate::grpc_client::client::CompactTxStreamer;
 
 mod danger {
@@ -169,6 +169,23 @@ pub fn get_info(uri: http::Uri, no_cert: bool) -> Result<LightdInfo, String> {
     tokio::runtime::current_thread::Runtime::new().unwrap().block_on(runner)
 }
 
+pub fn get_coinsupply(uri: http::Uri, no_cert: bool) -> Result<Coinsupply, String> {
+    let runner = make_grpc_client!(uri.scheme_str().unwrap(), uri.host().unwrap(), uri.port_part().unwrap(), no_cert)
+        .and_then(move |mut client| {
+            client.get_coinsupply(Request::new(Empty{}))
+                .map_err(|e| {
+                    format!("ERR = {:?}", e)
+                })
+                .and_then(move |response| {
+                    Ok(response.into_inner())
+                })
+                .map_err(|e| {
+                    format!("ERR = {:?}", e)
+                })
+        });
+
+    tokio::runtime::current_thread::Runtime::new().unwrap().block_on(runner)
+}
 
 pub fn fetch_blocks<F : 'static + std::marker::Send>(uri: &http::Uri, start_height: u64, end_height: u64, no_cert: bool, mut c: F)
     where F : FnMut(&[u8], u64) {

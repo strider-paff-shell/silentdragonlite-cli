@@ -202,6 +202,27 @@ impl Command for InfoCommand {
     }
 }
 
+struct CoinsupplyCommand {}
+impl Command for CoinsupplyCommand {
+    fn help(&self) -> String {
+        let mut h = vec![];
+        h.push("Get info about the actual Coinsupply of Hush");
+        h.push("Usage:");
+        h.push("coinsupply");
+        h.push("");
+
+        h.join("\n")
+    }
+
+    fn short_help(&self) -> String {
+        "Get the Coinsupply info".to_string()
+    }
+
+    fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {        
+        lightclient.do_coinsupply()
+    }
+}
+
 struct BalanceCommand {}
 impl Command for BalanceCommand {
     fn help(&self) -> String {
@@ -803,6 +824,7 @@ pub fn get_commands() -> Box<HashMap<String, Box<dyn Command>>> {
     map.insert("height".to_string(),            Box::new(HeightCommand{}));
     map.insert("export".to_string(),            Box::new(ExportCommand{}));
     map.insert("info".to_string(),              Box::new(InfoCommand{}));
+    map.insert("coinsupply".to_string(),        Box::new(CoinsupplyCommand{}));
     map.insert("send".to_string(),              Box::new(SendCommand{}));
     map.insert("save".to_string(),              Box::new(SaveCommand{}));
     map.insert("quit".to_string(),              Box::new(QuitCommand{}));

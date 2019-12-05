@@ -57,6 +57,15 @@ message LightdInfo {
     uint64 notarized = 10;
 }
 
+message Coinsupply {
+    string result = 1;
+    string coin = 2;
+    int64   height = 3;
+    int64 supply = 4;
+    int64 zfunds = 5;
+    int64 total = 6;
+}
+
 message TransparentAddress {
     string address = 1;
 }
@@ -81,4 +90,5 @@ service CompactTxStreamer {
 
     // Misc
     rpc GetLightdInfo(Empty) returns (LightdInfo) {}
+    rpc GetCoinsupply(Empty) returns (Coinsupply) {}
 }
