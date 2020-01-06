@@ -877,7 +877,7 @@ impl LightClient {
             let wallet = self.wallet.write().unwrap();
 
             match addr_type {
-                "zs" => wallet.add_zaddr(),
+                "zs" => wallet.add_zaddrdust(),
                 
                 _   => {
                     let e = format!("Unrecognized address type: {}", addr_type);

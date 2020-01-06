@@ -460,6 +460,22 @@ impl LightWallet {
 
         zaddr
     }
+    pub fn add_zaddrdust(&self) -> String {
+        if !self.unlocked {
+            return "".to_string();
+        }
+
+        let pos = self.extsks.read().unwrap().len() as u32;
+        let bip39_seed = bip39::Seed::new(&Mnemonic::from_entropy(&self.seed, Language::English).unwrap(), "");
+
+        let (_extsk, _extfvk, address) =
+            LightWallet::get_zaddr_from_bip39seed(&self.config, &bip39_seed.as_bytes(), pos);
+
+        let zaddr = encode_payment_address(self.config.hrp_sapling_address(), &address);
+       
+
+        zaddr
+    }
 
     /// Add a new t address to the wallet. This will derive a new address from the seed
     /// at the next position.
