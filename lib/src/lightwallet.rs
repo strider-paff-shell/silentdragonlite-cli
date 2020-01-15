@@ -4,9 +4,7 @@ use std::cmp;
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, RwLock};
 use std::io::{Error, ErrorKind};
-
 use rand::{Rng, rngs::OsRng};
-
 use log::{info, warn, error};
 
 use protobuf::parse_from_bytes;
@@ -199,7 +197,7 @@ impl LightWallet {
             
             seed_bytes.copy_from_slice(&phrase.entropy());
         }
-
+      
         // The seed bytes is the raw entropy. To pass it to HD wallet generation, 
         // we need to get the 64 byte bip39 entropy
         let bip39_seed = bip39::Seed::new(&Mnemonic::from_entropy(&seed_bytes, Language::English).unwrap(), "");
@@ -457,6 +455,38 @@ impl LightWallet {
         self.extsks.write().unwrap().push(extsk);
         self.extfvks.write().unwrap().push(extfvk);
         self.zaddress.write().unwrap().push(address);
+
+        zaddr
+    }
+    pub fn add_zaddrdust(&self) -> String {
+        if !self.unlocked {
+            return "".to_string();
+        }
+
+        let pos = self.extsks.read().unwrap().len() as u32;
+    
+        // Radnom Generator benutzen!!!!!!
+       
+            let mut rng = rand::thread_rng();
+            let letter: String = rng.gen_range(b'A', b'Z').to_string();
+            let number: String = rng.gen_range(0, 999999).to_string();
+           // let combi: String = letter.to_string() + number.to_string();
+            let s = format!("{}{:06}", letter, number);
+            //println!("{}", s);
+        
+        let my_string = String::from(s);
+       // let my_immutable_string = &my_string; //This is a &String type
+    let dust: &str = &my_string; //This is an &str type
+
+   
+
+        let bip39_seed = bip39::Seed::new(&Mnemonic::from_entropy(&self.seed, Language::English).unwrap(), dust);
+
+        let (_extsk, _extfvk, address) =
+            LightWallet::get_zaddr_from_bip39seed(&self.config, &bip39_seed.as_bytes(), pos);
+
+        let zaddr = encode_payment_address(self.config.hrp_sapling_address(), &address);
+       
 
         zaddr
     }

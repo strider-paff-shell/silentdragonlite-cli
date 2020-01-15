@@ -37,7 +37,7 @@ use crate::ANCHOR_OFFSET;
 
 mod checkpoints;
 
-pub const DEFAULT_SERVER: &str = "https://hush-lightwallet.de:443";
+pub const DEFAULT_SERVER: &str = "https://lite.myhush.org";
 pub const WALLET_NAME: &str    = "silentdragonlite-wallet.dat";
 pub const LOGFILE_NAME: &str   = "silentdragonlite-wallet.debug.log";
 
@@ -865,6 +865,31 @@ impl LightClient {
         self.do_save()?;
 
         Ok(array![new_address])
+    }
+
+    pub fn do_new_sietchaddress(&self, addr_type: &str) -> Result<JsonValue, String> {
+        if !self.wallet.read().unwrap().is_unlocked_for_spending() {
+            error!("Wallet is locked");
+            return Err("Wallet is locked".to_string());
+        }
+
+        let new_address = {
+            let wallet = self.wallet.write().unwrap();
+
+            match addr_type {
+                "zs" => wallet.add_zaddrdust(),
+                
+                _   => {
+                    let e = format!("Unrecognized address type: {}", addr_type);
+                    error!("{}", e);
+                    return Err(e);
+                }
+            }
+        };
+
+        self.do_save()?;
+
+        Ok(array!["sietch",new_address])
     }
 
     pub fn clear_state(&self) {

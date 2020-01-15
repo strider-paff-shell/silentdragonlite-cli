@@ -721,6 +721,36 @@ impl Command for NewAddressCommand {
     }
 }
 
+struct NewSietchAddressCommand {}
+impl Command for NewSietchAddressCommand {
+    fn help(&self)  -> String {
+        let mut h = vec![];
+        h.push("New Sietch Address");
+        h.push("Usage:");
+        h.push("sietch [zs]");
+        h.push("");
+        h.push("Example:");
+        h.push("To create a new zdust:");
+        h.push("sietch zs");
+        h.join("\n")
+    }
+
+    fn short_help(&self) -> String {
+        "Create a sietch Address".to_string()
+    }
+
+    fn exec(&self, args: &[&str], lightclient: &LightClient) -> String {
+        if args.len() != 1 {
+            return format!("No address type specified\n{}", self.help());
+        }
+
+        match lightclient.do_new_sietchaddress(args[0]) {
+            Ok(j)  => j,
+            Err(e) => object!{ "error" => e }
+        }.pretty(2)
+    }
+}
+
 struct NotesCommand {}
 impl Command for NotesCommand {
     fn help(&self)  -> String {
@@ -831,6 +861,7 @@ pub fn get_commands() -> Box<HashMap<String, Box<dyn Command>>> {
     map.insert("list".to_string(),              Box::new(TransactionsCommand{}));
     map.insert("notes".to_string(),             Box::new(NotesCommand{}));
     map.insert("new".to_string(),               Box::new(NewAddressCommand{}));
+    map.insert("sietch".to_string(),            Box::new(NewSietchAddressCommand{}));
     map.insert("seed".to_string(),              Box::new(SeedCommand{}));
     map.insert("encrypt".to_string(),           Box::new(EncryptCommand{}));
     map.insert("decrypt".to_string(),           Box::new(DecryptCommand{}));
