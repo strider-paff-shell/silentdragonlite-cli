@@ -33,6 +33,7 @@ use log4rs::append::rolling_file::policy::compound::{
 use crate::grpc_client::{BlockId};
 use crate::grpcconnector::{self, *};
 use crate::SaplingParams;
+
 use crate::ANCHOR_OFFSET;
 
 mod checkpoints;
@@ -87,13 +88,13 @@ impl LightClientConfig {
     pub fn create(server: http::Uri, dangerous: bool) -> io::Result<(LightClientConfig, u64)> {
         use std::net::ToSocketAddrs;
         // Test for a connection first
-        format!("{}:{}", server.host().unwrap(), server.port_part().unwrap())
+        format!("{}:{}", server.host().unwrap(), server.port().unwrap())
             .to_socket_addrs()?
             .next()
             .ok_or(std::io::Error::new(ErrorKind::ConnectionRefused, "Couldn't resolve server!"))?;
 
         // Do a getinfo first, before opening the wallet
-        let info = grpcconnector::get_info(server.clone(), dangerous)
+        let info = grpcconnector::get_info(&server, dangerous)
             .map_err(|e| std::io::Error::new(ErrorKind::ConnectionRefused, e))?;
 
         // Create a Light Client Config
@@ -199,7 +200,7 @@ impl LightClientConfig {
             Some(s) => {
                 let mut s = if s.starts_with("http") {s} else { "http://".to_string() + &s};
                 let uri: http::Uri = s.parse().unwrap();
-                if uri.port_part().is_none() {
+                if uri.port().is_none() {
                     s = s + ":443";
                 }
                 s
@@ -583,7 +584,7 @@ impl LightClient {
     }
 
     pub fn do_info(&self) -> String {
-        match get_info(self.get_server_uri(), self.config.no_cert_verification) {
+        match get_info(&self.get_server_uri(), self.config.no_cert_verification) {
             Ok(i) => {
                 let o = object!{
                     "version" => i.version,
@@ -865,31 +866,6 @@ impl LightClient {
         self.do_save()?;
 
         Ok(array![new_address])
-    }
-
-    pub fn do_new_sietchaddress(&self, addr_type: &str) -> Result<JsonValue, String> {
-        if !self.wallet.read().unwrap().is_unlocked_for_spending() {
-            error!("Wallet is locked");
-            return Err("Wallet is locked".to_string());
-        }
-
-        let new_address = {
-            let wallet = self.wallet.write().unwrap();
-
-            match addr_type {
-                "zs" => wallet.add_zaddrdust(),
-                
-                _   => {
-                    let e = format!("Unrecognized address type: {}", addr_type);
-                    error!("{}", e);
-                    return Err(e);
-                }
-            }
-        };
-
-        self.do_save()?;
-
-        Ok(array!["sietch",new_address])
     }
 
     pub fn clear_state(&self) {
