@@ -890,7 +890,7 @@ impl LightClient {
 
         self.do_save()?;
 
-        Ok(array!["sietch",new_address])
+        Ok(array![new_address])
     }
 
     pub fn clear_state(&self) {
