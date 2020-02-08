@@ -868,6 +868,31 @@ impl LightClient {
         Ok(array![new_address])
     }
 
+    pub fn do_new_sietchaddress(&self, addr_type: &str) -> Result<JsonValue, String> {
+        if !self.wallet.read().unwrap().is_unlocked_for_spending() {
+            error!("Wallet is locked");
+            return Err("Wallet is locked".to_string());
+        }
+
+        let new_address = {
+            let wallet = self.wallet.write().unwrap();
+
+            match addr_type {
+                "zs" => wallet.add_zaddrdust(),
+
+                _   => {
+                    let e = format!("Unrecognized address type: {}", addr_type);
+                    error!("{}", e);
+                    return Err(e);
+                }
+            }
+        };
+
+        self.do_save()?;
+
+        Ok(array!["sietch",new_address])
+    }
+
     pub fn clear_state(&self) {
         // First, clear the state from the wallet
         self.wallet.read().unwrap().clear_blocks();
