@@ -23,8 +23,9 @@ fn get_test_checkpoint(height: u64) ->  Option<(u64, &'static str, &'static str)
 
 fn get_main_checkpoint(height: u64) ->  Option<(u64, &'static str, &'static str)> {
     let checkpoints: Vec<(u64, &str, &str)> = vec![
-        (170947, "0000000269bfc4db6f23aff43dba54afe20398018082cd8b5e90644257b5adc9",
-                 "0000000269bfc4db6f23aff43dba54afe20398018082cd8b5e90644257b5adc9"
+        (177916,  "0000000173fddfc716b3e7c904e3b271215df72e0af2dba7200257fec6aef2b5",
+
+                   ""
         )
     ];
 
