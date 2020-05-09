@@ -241,7 +241,10 @@ impl Command for BalanceCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-        format!("{}", lightclient.do_balance().pretty(2))
+        match lightclient.do_sync(true) {
+            Ok(_) => format!("{}", lightclient.do_balance().pretty(2)),
+            Err(e) => e
+        }
     }
 }
 
@@ -646,7 +649,12 @@ impl Command for TransactionsCommand {
     }
 
     fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {
-        format!("{}", lightclient.do_list_transactions().pretty(2))
+        match lightclient.do_sync(true) {
+            Ok(_) => {
+                format!("{}", lightclient.do_list_transactions().pretty(2))
+            },
+            Err(e) => e
+        }
     }
 }
 
@@ -672,7 +680,14 @@ impl Command for HeightCommand {
             return format!("Didn't understand arguments\n{}", self.help());
         }
 
-        format!("{}", object! { "height" => lightclient.last_scanned_height()}.pretty(2))
+        if args.len() == 0 || (args.len() == 1 && args[0].trim() == "true") {
+            match lightclient.do_sync(true) {
+                Ok(_) => format!("{}", object! { "height" => lightclient.last_scanned_height()}.pretty(2)),
+                Err(e) => e
+            }
+        } else {
+            format!("{}", object! { "height" => lightclient.last_scanned_height()}.pretty(2))
+        }
     }
 }
 
@@ -770,7 +785,12 @@ impl Command for NotesCommand {
             false
         };
 
-        format!("{}", lightclient.do_list_notes(all_notes).pretty(2))
+        match lightclient.do_sync(true) {
+            Ok(_) => {
+                format!("{}", lightclient.do_list_notes(all_notes).pretty(2))
+            },
+            Err(e) => e
+        }
     }
 }
 
