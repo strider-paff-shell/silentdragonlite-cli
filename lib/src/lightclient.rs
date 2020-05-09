@@ -342,6 +342,7 @@ impl LightClient {
 
         info!("Created new wallet with a new seed!");
         info!("Created LightClient to {}", &config.server);
+        l.do_save().map_err(|s| io::Error::new(ErrorKind::PermissionDenied, s))?;
 
         Ok(l)
     }
@@ -367,6 +368,7 @@ impl LightClient {
 
         info!("Created new wallet!");
         info!("Created LightClient to {}", &config.server);
+        l.do_save().map_err(|s| io::Error::new(ErrorKind::PermissionDenied, s))?;
 
         Ok(l)
     }
@@ -413,15 +415,23 @@ impl LightClient {
         Ok(())
     }
 
-    pub fn attempt_recover_seed(config: &LightClientConfig) -> Result<String, String> {
+        pub fn attempt_recover_seed(config: &LightClientConfig, password: Option<String>) -> Result<String, String> {
         use std::io::prelude::*;
-        use byteorder::{LittleEndian, ReadBytesExt,};
+        use byteorder::{LittleEndian, ReadBytesExt};
+        use libflate::gzip::Decoder;
         use bip39::{Mnemonic, Language};
         use zcash_primitives::serialize::Vector;
 
-        let mut reader = BufReader::new(File::open(config.get_wallet_path()).unwrap());
-        let version = reader.read_u64::<LittleEndian>().unwrap();
+        let mut inp = BufReader::new(File::open(config.get_wallet_path()).unwrap());
+        let version = inp.read_u64::<LittleEndian>().unwrap();
         println!("Reading wallet version {}", version);
+
+        // After version 5, we're writing the rest of the file as a compressed stream (gzip)
+        let mut reader: Box<dyn Read> = if version <= 4 {
+            Box::new(inp)
+        } else {
+            Box::new(Decoder::new(inp).unwrap())
+        };
 
         let encrypted = if version >= 4 {
             reader.read_u8().unwrap() > 0
@@ -429,8 +439,8 @@ impl LightClient {
             false
         };
 
-        if encrypted {
-            return Err("The wallet is encrypted!".to_string());
+        if encrypted && password.is_none() {
+            return Err("The wallet is encrypted and a password was not specified. Please specify the password with '--password'!".to_string());
         }
 
         let mut enc_seed = [0u8; 48];
@@ -438,19 +448,35 @@ impl LightClient {
             reader.read_exact(&mut enc_seed).unwrap();
         }
 
-        let _nonce = if version >= 4 {
+        let nonce = if version >= 4 {
             Vector::read(&mut reader, |r| r.read_u8()).unwrap()
         } else {
             vec![]
         };
 
+        let phrase = if encrypted {
+            use sodiumoxide::crypto::secretbox;
+            use crate::lightwallet::double_sha256;
+
+         // Get the doublesha256 of the password, which is the right length
+         let key = secretbox::Key::from_slice(&double_sha256(password.unwrap().as_bytes())).unwrap();
+         let nonce = secretbox::Nonce::from_slice(&nonce).unwrap();
+
+         let seed = match secretbox::open(&enc_seed, &nonce, &key) {
+            Ok(s) => s,
+            Err(_) => return Err("Decryption failed. Is your password correct?".to_string())
+        };
+
+        Mnemonic::from_entropy(&seed, Language::English)
+    } else {
         // Seed
         let mut seed_bytes = [0u8; 32];
         reader.read_exact(&mut seed_bytes).unwrap();
 
-        let phrase = Mnemonic::from_entropy(&seed_bytes, Language::English,).unwrap().phrase().to_string();
+        Mnemonic::from_entropy(&seed_bytes, Language::English) 
+    }.map_err(|e| format!("Failed to read seed. {:?}", e));
 
-        Ok(phrase)
+    phrase.map(|m| m.phrase().to_string())
     }
 
 
@@ -569,14 +595,18 @@ impl LightClient {
             1_000_000, // 1 MB write buffer
             File::create(self.config.get_wallet_path()).unwrap());
         
-        match self.wallet.write().unwrap().write(&mut file_buffer) {
+            let r = match self.wallet.write().unwrap().write(&mut file_buffer) {
             Ok(_) => Ok(()),
             Err(e) => {
                 let err = format!("ERR: {}", e);
                 error!("{}", err);
                 Err(e.to_string())
             }
-        }
+        };
+
+        file_buffer.flush().map_err(|e| format!("{}", e))?;
+
+        r
     }
 
     pub fn get_server_uri(&self) -> http::Uri {
@@ -776,10 +806,12 @@ impl LightClient {
                 // For each sapling note that is not a change, add a Tx.
                 txns.extend(v.notes.iter()
                     .filter( |nd| !nd.is_change )
-                    .map ( |nd| 
+                    .enumerate()
+                    .map ( |(i, nd)| 
                         object! {
                             "block_height" => v.block,
                             "datetime"     => v.datetime,
+                            "position"     => i,
                             "txid"         => format!("{}", v.txid),
                             "amount"       => nd.note.value as i64,
                             "address"      => LightWallet::note_address(self.config.hrp_sapling_address(), nd),
@@ -1295,13 +1327,13 @@ pub mod tests {
             let seed = lc.do_seed_phrase().unwrap()["seed"].as_str().unwrap().to_string();
             lc.do_save().unwrap();
 
-            assert_eq!(seed, LightClient::attempt_recover_seed(&config).unwrap());
+            assert_eq!(seed, LightClient::attempt_recover_seed(&config, None).unwrap());
 
             // Now encrypt and save the file
-            lc.wallet.write().unwrap().encrypt("password".to_string()).unwrap();
-            lc.do_save().unwrap();
+            let pwd = "password".to_string();
+            lc.wallet.write().unwrap().encrypt(pwd.clone()).unwrap();
 
-            assert!(LightClient::attempt_recover_seed(&config).is_err());
+            assert_eq!(seed, LightClient::attempt_recover_seed(&config, Some(pwd)).unwrap());
         }
     }
 
