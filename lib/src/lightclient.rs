@@ -652,6 +652,19 @@ impl LightClient {
         }
     }
 
+    pub fn do_rawmempool(&self) -> String {
+        match get_rawmempool(self.get_server_uri(), self.config.no_cert_verification) {
+            Ok(i) => {
+                let o = object!{
+                    "ID" => i.id
+                   
+                };
+                o.pretty(2)
+            },
+            Err(e) => e
+        }
+    }
+
     pub fn do_seed_phrase(&self) -> Result<JsonValue, &str> {
         if !self.wallet.read().unwrap().is_unlocked_for_spending() {
             error!("Wallet is locked");
