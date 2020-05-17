@@ -223,6 +223,27 @@ impl Command for CoinsupplyCommand {
     }
 }
 
+struct RawMempoolCommand {}
+impl Command for RawMempoolCommand {
+    fn help(&self) -> String {
+        let mut h = vec![];
+        h.push("Get info about the actual raw of Hush");
+        h.push("Usage:");
+        h.push("rawmempool");
+        h.push("");
+
+        h.join("\n")
+    }
+
+    fn short_help(&self) -> String {
+        "Get the RawMemPool info".to_string()
+    }
+
+    fn exec(&self, _args: &[&str], lightclient: &LightClient) -> String {        
+        lightclient.do_rawmempool()
+    }
+}
+
 struct BalanceCommand {}
 impl Command for BalanceCommand {
     fn help(&self) -> String {
@@ -856,6 +877,7 @@ pub fn get_commands() -> Box<HashMap<String, Box<dyn Command>>> {
     map.insert("export".to_string(),            Box::new(ExportCommand{}));
     map.insert("info".to_string(),              Box::new(InfoCommand{}));
     map.insert("coinsupply".to_string(),        Box::new(CoinsupplyCommand{}));
+    map.insert("rawmempool".to_string(),        Box::new(RawMempoolCommand{}));
     map.insert("send".to_string(),              Box::new(SendCommand{}));
     map.insert("save".to_string(),              Box::new(SaveCommand{}));
     map.insert("quit".to_string(),              Box::new(QuitCommand{}));

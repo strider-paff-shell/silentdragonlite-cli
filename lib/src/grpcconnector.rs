@@ -3,7 +3,7 @@ use std::sync::Arc;
 use zcash_primitives::transaction::{TxId};
 
 use crate::grpc_client::{ChainSpec, BlockId, BlockRange, RawTransaction, 
-                         TransparentAddressBlockFilter, TxFilter, Empty, LightdInfo, Coinsupply};
+                         TransparentAddressBlockFilter, TxFilter, Empty, LightdInfo, Coinsupply, RawMempool};
 use tonic::transport::{Channel, ClientTlsConfig};
 use tokio_rustls::{rustls::ClientConfig};
 use tonic::{Request};
@@ -94,6 +94,23 @@ pub fn get_coinsupply(uri: http::Uri, no_cert: bool) -> Result<Coinsupply, Strin
     rt.block_on(get_coinsupply_info(&uri, no_cert)).map_err( |e| e.to_string())
    // tokio::runtime::current_thread::Runtime::new().unwrap().block_on(runner)
 }
+
+async fn get_rawmempool_info(uri: &http::Uri, no_cert: bool) -> Result<RawMempool, Box<dyn std::error::Error>> {
+    let mut client = get_client(uri, no_cert).await?;
+
+    let request = Request::new(Empty {});
+
+    let response = client.get_raw_mempool(request).await?;
+
+    Ok(response.into_inner())
+}
+pub fn get_rawmempool(uri: http::Uri, no_cert: bool) -> Result<RawMempool, String> {
+    let mut rt = tokio::runtime::Runtime::new().map_err(|e| e.to_string())?;
+   
+    rt.block_on(get_rawmempool_info(&uri, no_cert)).map_err( |e| e.to_string())
+   // tokio::runtime::current_thread::Runtime::new().unwrap().block_on(runner)
+}
+
 
 async fn get_block_range<F : 'static + std::marker::Send>(uri: &http::Uri, start_height: u64, end_height: u64, no_cert: bool, mut c: F) 
     -> Result<(), Box<dyn std::error::Error>> 

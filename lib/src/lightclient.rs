@@ -426,8 +426,8 @@ impl LightClient {
         let version = inp.read_u64::<LittleEndian>().unwrap();
         println!("Reading wallet version {}", version);
 
-        // After version 5, we're writing the rest of the file as a compressed stream (gzip)
-        let mut reader: Box<dyn Read> = if version <= 4 {
+        // At version 5, we're writing the rest of the file as a compressed stream (gzip)
+        let mut reader: Box<dyn Read> = if version != 5 {
             Box::new(inp)
         } else {
             Box::new(Decoder::new(inp).unwrap())
@@ -644,6 +644,19 @@ impl LightClient {
                     "supply" => i.supply,
                     "zfunds" => i.zfunds,
                     "total" => i.total,
+                   
+                };
+                o.pretty(2)
+            },
+            Err(e) => e
+        }
+    }
+
+    pub fn do_rawmempool(&self) -> String {
+        match get_rawmempool(self.get_server_uri(), self.config.no_cert_verification) {
+            Ok(i) => {
+                let o = object!{
+                    "ID" => i.id
                    
                 };
                 o.pretty(2)
